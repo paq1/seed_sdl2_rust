@@ -86,12 +86,7 @@ fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowCont
     canvas.set_draw_color(color);
     canvas.clear();
 
-    let keys_pressed = key_manager
-        .keys()
-        .filter(|key| utils::is_key_pressed(key_manager, key))
-        .map(|k| k.clone())
-        .collect::<Vec<_>>()
-        .join("-");
+    let keys_pressed = get_keys_pressed(key_manager);
 
     let surface = font
         .render(format!("keys : {}", keys_pressed).as_str())
@@ -108,4 +103,13 @@ fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowCont
 
     canvas.present();
     Ok(())
+}
+
+fn get_keys_pressed(key_manager: &HashMap<String, bool>) -> String {
+    key_manager
+        .keys()
+        .filter(|key| utils::is_key_pressed(key_manager, key))
+        .map(|k| k.clone())
+        .collect::<Vec<_>>()
+        .join("-")
 }
