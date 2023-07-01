@@ -1,4 +1,5 @@
 /target
+/.idea
 
 # sdl2
 SDL2.dll
