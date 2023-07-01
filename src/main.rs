@@ -1,5 +1,6 @@
 extern crate sdl2;
 
+use std::collections::HashMap;
 use std::path::Path;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -9,6 +10,8 @@ use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
+
+pub mod utils;
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -36,6 +39,9 @@ pub fn main() -> Result<(), String> {
     canvas.present();
     let mut event_pump = sdl_context.event_pump()?;
     let mut i = 0;
+
+    let mut key_manager: HashMap<String, bool> = HashMap::new();
+
     'running: loop {
         i = (i + 1) % 255;
         canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
@@ -46,12 +52,28 @@ pub fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running
                 },
+                Event::KeyDown { keycode, ..} => {
+                    match keycode {
+                        None => {},
+                        Some(key) => {
+                            utils::key_down(&mut key_manager, key.to_string())
+                        }
+                    }
+                },
+                Event::KeyUp { keycode, ..} => {
+                    match keycode {
+                        None => {},
+                        Some(key) => {
+                            utils::key_up(&mut key_manager, key.to_string())
+                        }
+                    }
+                },
                 _ => {}
             }
         }
         // The rest of the game loop goes here...
 
-        render(&mut canvas, &texture_creator, &font)?;
+        render(&mut canvas, &texture_creator, &font, &key_manager)?;
 
         // canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
@@ -59,14 +81,20 @@ pub fn main() -> Result<(), String> {
     Ok(())
 }
 
-fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowContext>, font: &Font) -> Result<(), String> {
+fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowContext>, font: &Font, key_manager: &HashMap<String, bool>) -> Result<(), String> {
     let color = Color::RGB(0, 0, 0);
     canvas.set_draw_color(color);
     canvas.clear();
 
-    let text_hello = "hello world".to_string();
+    let keys_pressed = key_manager
+        .keys()
+        .filter(|key| utils::is_key_pressed(key_manager, key))
+        .map(|k| k.clone())
+        .collect::<Vec<_>>()
+        .join("-");
+
     let surface = font
-        .render(&text_hello)
+        .render(format!("keys : {}", keys_pressed).as_str())
         .blended(Color::RGB(255,0,255))
         .map_err(|err| err.to_string())?;
 
