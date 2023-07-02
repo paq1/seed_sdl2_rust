@@ -1,7 +1,9 @@
 extern crate sdl2;
 
+use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::path::Path;
+use std::rc::Rc;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -10,8 +12,17 @@ use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
+use crate::app::input;
+use crate::app::input::InputServiceImpl;
+use crate::core::input::InputService;
+use crate::core::scene::scene_menu::SceneMenu;
+use crate::core::scene::{Scene, SceneManager};
 
 pub mod utils;
+pub mod core;
+pub mod app;
+
+type InputServiceAbstrait = Rc<RefCell<Box<dyn InputService>>>;
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -40,7 +51,15 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
     let mut i = 0;
 
-    let mut key_manager: HashMap<String, bool> = HashMap::new();
+    // let mut key_manager: HashMap<String, bool> = HashMap::new();
+    let mut input_service = Rc::new(
+        RefCell::new(
+            Box::new(InputServiceImpl::new()) as Box<dyn InputService>
+        )
+    );
+
+    let mut scene_menu = SceneMenu { key_manager: Rc::clone(&input_service) };
+    let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 
     'running: loop {
         i = (i + 1) % 255;
@@ -56,7 +75,8 @@ pub fn main() -> Result<(), String> {
                     match keycode {
                         None => {},
                         Some(key) => {
-                            utils::key_down(&mut key_manager, key.to_string())
+                            input_service.borrow_mut().key_down(key.to_string());
+                            // utils::key_down(&mut key_manager, key.to_string())
                         }
                     }
                 },
@@ -64,7 +84,8 @@ pub fn main() -> Result<(), String> {
                     match keycode {
                         None => {},
                         Some(key) => {
-                            utils::key_up(&mut key_manager, key.to_string())
+                            input_service.borrow_mut().key_up(key.to_string());
+                            // utils::key_up(&mut key_manager, key.to_string())
                         }
                     }
                 },
@@ -72,8 +93,7 @@ pub fn main() -> Result<(), String> {
             }
         }
         // The rest of the game loop goes here...
-
-        render(&mut canvas, &texture_creator, &font, &key_manager)?;
+        render(&mut canvas, &texture_creator, &font, input_service.borrow())?;
 
         // canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
@@ -81,7 +101,12 @@ pub fn main() -> Result<(), String> {
     Ok(())
 }
 
-fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowContext>, font: &Font, key_manager: &HashMap<String, bool>) -> Result<(), String> {
+fn render(
+    canvas: &mut WindowCanvas,
+    texture_creator: &TextureCreator<WindowContext>,
+    font: &Font,
+    key_manager: Ref<Box<dyn InputService>>
+) -> Result<(), String> {
     let color = Color::RGB(0, 0, 0);
     canvas.set_draw_color(color);
     canvas.clear();
@@ -105,11 +130,8 @@ fn render(canvas: &mut WindowCanvas, texture_creator: &TextureCreator<WindowCont
     Ok(())
 }
 
-fn get_keys_pressed(key_manager: &HashMap<String, bool>) -> String {
+fn get_keys_pressed(key_manager: Ref<Box<dyn InputService>>) -> String {
     key_manager
-        .keys()
-        .filter(|key| utils::is_key_pressed(key_manager, key))
-        .map(|k| k.clone())
-        .collect::<Vec<_>>()
+        .key_pressed()
         .join("-")
 }
