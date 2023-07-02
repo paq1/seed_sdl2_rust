@@ -1,4 +1,5 @@
 pub mod scene_menu;
+pub mod scene_exemple;
 
 pub trait Scene {
     // si il y a une transition de scene Some(nouvelle scene) sinon None
