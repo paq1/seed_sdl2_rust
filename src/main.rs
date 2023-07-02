@@ -47,21 +47,9 @@ pub fn main() -> Result<(), String> {
         )
     );
 
-
-    let mut scene_exemple = SceneExemple {
-        key_manager: Rc::clone(&input_service),
-        canvas_service: Rc::clone(&canvas_service),
-    };
-
-    let mut scenes: HashMap<String, Box<dyn Scene>> = HashMap::new();
-    scenes.insert(
-        "exemple".to_string(), Box::new(scene_exemple) as Box<dyn Scene>
-    );
-
     let mut scene_menu = SceneMenu {
         key_manager: Rc::clone(&input_service),
-        canvas_service: Rc::clone(&canvas_service),
-        next_scenes: scenes
+        canvas_service: Rc::clone(&canvas_service)
     };
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 

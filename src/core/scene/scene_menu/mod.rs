@@ -8,8 +8,7 @@ use crate::core::scene::scene_exemple::SceneExemple;
 
 pub struct SceneMenu<SDLCTX, CANVAS> {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<SDLCTX, CANVAS>>>>,
-    pub next_scenes: HashMap<String, Box<dyn Scene>>
+    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<SDLCTX, CANVAS>>>>
 }
 
 impl<SDLCTX: 'static, CANVAS: 'static> Scene for SceneMenu<SDLCTX, CANVAS> {
