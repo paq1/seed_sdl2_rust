@@ -44,7 +44,6 @@ pub fn main() -> Result<(), String> {
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 
     'running: loop {
-        // canvas_service.borrow_mut().get_canvas().set_draw_color(Color::RGB(i, 64, 255 - i));
         canvas_service.borrow_mut().get_canvas().clear();
         for event in event_pump.poll_iter() {
             match event {
