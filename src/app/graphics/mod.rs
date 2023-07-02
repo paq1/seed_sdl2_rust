@@ -1,11 +1,12 @@
-use std::collections::HashMap;
 use std::path::Path;
-use sdl2::render::{TextureCreator, WindowCanvas};
+
 use sdl2::{Sdl, VideoSubsystem};
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::ttf::{Font, Sdl2TtfContext};
-use sdl2::video::{Window, WindowContext};
+use sdl2::video::WindowContext;
+
 use crate::core::graphics::CanvasService;
 
 pub struct CanvasServiceImpl {

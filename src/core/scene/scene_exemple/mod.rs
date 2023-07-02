@@ -1,7 +1,6 @@
-use std::cell::{Ref, RefCell};
-use std::collections::HashMap;
+use std::cell::RefCell;
 use std::rc::Rc;
-use sdl2::pixels::Color;
+
 use crate::core::graphics::CanvasService;
 use crate::core::input::InputService;
 use crate::core::scene::Scene;

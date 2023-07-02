@@ -1,6 +1,6 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::rc::Rc;
+
 use crate::core::graphics::CanvasService;
 use crate::core::input::InputService;
 use crate::core::scene::Scene;
@@ -20,7 +20,7 @@ impl<SDLCTX: 'static, CANVAS: 'static> Scene for SceneMenu<SDLCTX, CANVAS> {
             .create_text("menu", 0,0,100,100)
             .expect("erreur lors de l'affichage du text");
 
-        let mut scene_exemple = SceneExemple {
+        let scene_exemple = SceneExemple {
             key_manager: Rc::clone(&self.key_manager),
             canvas_service: Rc::clone(&self.canvas_service),
         };
