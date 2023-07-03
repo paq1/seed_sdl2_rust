@@ -5,18 +5,20 @@ use crate::core::graphics::CanvasService;
 use crate::core::input::InputService;
 use crate::core::scene::Scene;
 
-pub struct SceneExemple<SDLCTX, CANVAS> {
+pub struct SceneExemple<TTFContext, CANVAS> {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<SDLCTX, CANVAS>>>>
+    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<TTFContext, CANVAS>>>>
 }
 
-impl<SDLCTX, CANVAS> Scene for SceneExemple<SDLCTX, CANVAS> {
+impl<TTFContext, CANVAS> Scene<TTFContext> for SceneExemple<TTFContext, CANVAS> {
     fn on_scene(
-        &mut self
-    ) -> Option<Box<dyn Scene>> {
+        &mut self,
+        ttf_ctx: &TTFContext
+    ) -> Option<Box<dyn Scene<TTFContext>>> {
 
         let keys_pressed = self.get_keys_pressed();
         self.canvas_service.borrow_mut().create_text(
+            ttf_ctx,
             format!("keys = {}", keys_pressed).as_str(),
             10i32,
             0i32,

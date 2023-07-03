@@ -8,6 +8,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
 use sdl2::Sdl;
+use sdl2::ttf::Sdl2TtfContext;
 
 use crate::app::graphics::CanvasServiceImpl;
 use crate::app::input::InputServiceImpl;
@@ -21,15 +22,24 @@ pub mod core;
 pub mod app;
 
 pub fn main() -> Result<(), String> {
+
+    let sdl_context = sdl2::init()?;
+    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
+    let video_subsystem = sdl_context.video()?;
+    let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
+        .position_centered()
+        .build()
+        .expect("could not initialize the video subsystem");
+
     let canvas_service = Rc::new(
         RefCell::new(
             Box::new(
-                CanvasServiceImpl::new()?
-            ) as Box<dyn CanvasService<Sdl, WindowCanvas>>
+                CanvasServiceImpl::new(window)?
+            ) as Box<dyn CanvasService<Sdl2TtfContext, WindowCanvas>>
         )
     );
 
-    let mut event_pump = canvas_service.borrow_mut().get_ctx().event_pump()?;
+    let mut event_pump = sdl_context.event_pump()?;
 
     let input_service = Rc::new(
         RefCell::new(
@@ -72,7 +82,7 @@ pub fn main() -> Result<(), String> {
         }
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
-        if let Some(x) = scene_manager.current.on_scene() {
+        if let Some(x) = scene_manager.current.on_scene(&ttf_context) {
             scene_manager.current = x;
         }
 

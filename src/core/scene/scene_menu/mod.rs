@@ -6,18 +6,26 @@ use crate::core::input::InputService;
 use crate::core::scene::Scene;
 use crate::core::scene::scene_exemple::SceneExemple;
 
-pub struct SceneMenu<SDLCTX, CANVAS> {
+pub struct SceneMenu<TTFContext, CANVAS> {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<SDLCTX, CANVAS>>>>
+    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<TTFContext, CANVAS>>>>
 }
 
-impl<SDLCTX: 'static, CANVAS: 'static> Scene for SceneMenu<SDLCTX, CANVAS> {
+impl<TTFContext: 'static, CANVAS: 'static> Scene<TTFContext> for SceneMenu<TTFContext, CANVAS> {
     fn on_scene(
-        &mut self
-    ) -> Option<Box<dyn Scene>> {
+        &mut self,
+        ttf_ctx: &TTFContext
+    ) -> Option<Box<dyn Scene<TTFContext>>> {
 
         self.canvas_service.borrow_mut()
-            .create_text("menu", 0,0,100,100)
+            .create_text(
+                ttf_ctx,
+                "press space",
+                0,
+                0,
+                100,
+                100
+            )
             .expect("erreur lors de l'affichage du text");
 
         let scene_exemple = SceneExemple {
