@@ -1,39 +1,37 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::core::graphics::CanvasService;
+use crate::core::graphics::TextService;
 use crate::core::input::InputService;
 use crate::core::scene::Scene;
 use crate::core::scene::scene_exemple::SceneExemple;
 
-pub struct SceneMenu<TTFContext, CANVAS> {
+pub struct SceneMenu<TTFContext> {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<TTFContext, CANVAS>>>>
+    pub text_service: Rc<RefCell<Box<dyn TextService<TTFContext>>>>
 }
 
-impl<TTFContext: 'static, CANVAS: 'static> Scene<TTFContext> for SceneMenu<TTFContext, CANVAS> {
+impl<TTFContext: 'static> Scene<TTFContext> for SceneMenu<TTFContext> {
     fn on_scene(
         &mut self,
         ttf_ctx: &TTFContext
     ) -> Option<Box<dyn Scene<TTFContext>>> {
 
-        self.canvas_service.borrow_mut()
+        self.text_service.borrow_mut()
             .create_text(
                 ttf_ctx,
                 "press space",
-                0,
-                0,
-                100,
+                300,
+                30,
+                300,
                 100
-            )
-            .expect("erreur lors de l'affichage du text");
-
-        let scene_exemple = SceneExemple {
-            key_manager: Rc::clone(&self.key_manager),
-            canvas_service: Rc::clone(&self.canvas_service),
-        };
+            ).expect("erreur lors de l'affichage");
 
         if self.key_manager.borrow().is_key_pressed("Space") {
+            let scene_exemple = SceneExemple {
+                key_manager: Rc::clone(&self.key_manager),
+                text_service: Rc::clone(&self.text_service),
+            };
             Some(Box::new(scene_exemple))
         } else {
             None
