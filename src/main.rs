@@ -8,6 +8,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
 use sdl2::ttf::Sdl2TtfContext;
+use crate::app::factories::FontFactory;
 
 use crate::app::graphics::canvas_service_sdl::CanvasServiceImpl;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
@@ -18,14 +19,19 @@ use crate::core::input::InputService;
 use crate::core::scene::scene_menu::SceneMenu;
 use crate::core::scene::SceneManager;
 
+use once_cell::sync::{Lazy};
+
 pub mod utils;
 pub mod core;
 pub mod app;
 
+static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
+    sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
+});
+
 pub fn main() -> Result<(), String> {
 
     let sdl_context = sdl2::init()?;
-    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
@@ -35,6 +41,12 @@ pub fn main() -> Result<(), String> {
         .build()
         .expect("Failed to initialize canvas");
     let texture_creator = canvas.texture_creator();
+
+    let font_factory = Rc::new(
+        RefCell::new(
+            FontFactory :: new(&TTF_CONTEXT)?
+        )
+    );
 
     let texture_creator_service = Rc::new(
         RefCell::new(
@@ -48,7 +60,7 @@ pub fn main() -> Result<(), String> {
         RefCell::new(
             Box::new(
                 CanvasServiceImpl::new(canvas, Rc::clone(&texture_creator_service))?
-            ) as Box<dyn CanvasService<Sdl2TtfContext, WindowCanvas>>
+            ) as Box<dyn CanvasService<WindowCanvas>>
         )
     );
 
@@ -58,9 +70,10 @@ pub fn main() -> Result<(), String> {
             Box::new(
                 TextServiceSDL::new(
                     Rc::clone(&canvas_service),
-                    Rc::clone(&texture_creator_service)
+                    Rc::clone(&texture_creator_service),
+                    Rc::clone(&font_factory)
                 )
-            ) as Box<dyn TextService<Sdl2TtfContext>>
+            ) as Box<dyn TextService>
         )
     );
 
@@ -107,7 +120,7 @@ pub fn main() -> Result<(), String> {
         }
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
-        scene_manager.update_scene(&ttf_context);
+        scene_manager.update_scene();
 
         canvas_service.borrow_mut().get_canvas().present();
         // canvas.present();

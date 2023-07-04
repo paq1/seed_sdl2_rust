@@ -1,46 +1,44 @@
 use std::cell::{Ref, RefCell};
-use std::path::Path;
 use std::rc::Rc;
+
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
-use sdl2::ttf::{Font, Sdl2TtfContext};
+
+use crate::app::factories::FontFactory;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::core::graphics::{CanvasService, TextService};
 
-pub struct TextServiceSDL {
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<Sdl2TtfContext, WindowCanvas>>>>,
-    pub texture_creator_service: Rc<RefCell<TextureCreatorService>>
+pub struct TextServiceSDL<'a> {
+    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
+    pub texture_creator_service: Rc<RefCell<TextureCreatorService>>,
+    pub texture_factory: Rc<RefCell<FontFactory<'a>>>
 }
 
-impl TextServiceSDL {
+impl<'a> TextServiceSDL<'a> {
     pub fn new(
-        canvas_service: Rc<RefCell<Box<dyn CanvasService<Sdl2TtfContext, WindowCanvas>>>>,
-        texture_creator_service: Rc<RefCell<TextureCreatorService>>
+        canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
+        texture_creator_service: Rc<RefCell<TextureCreatorService>>,
+        texture_factory: Rc<RefCell<FontFactory<'a>>>
     ) -> Self {
         Self {
             canvas_service,
-            texture_creator_service
+            texture_creator_service,
+            texture_factory
         }
     }
 }
 
-impl TextService<Sdl2TtfContext> for TextServiceSDL {
+impl TextService for TextServiceSDL<'_> {
     fn create_text(
         &self,
-        ctx_ttf: &Sdl2TtfContext,
         text: &str,
         x: i32,
         y: i32,
         w: u32,
         h: u32
     ) -> Result<(), String> {
-
-        let font_path: &Path = Path::new(&"assets/fonts/dpcomic.ttf");
-        let mut font: Font = ctx_ttf.load_font(font_path, 128)?;
-        font.set_style(sdl2::ttf::FontStyle::BOLD);
-
-        let surface = font
+        let surface = self.texture_factory.borrow().font
             .render(text)
             .blended(Color::RGB(255,0,0))
             .map_err(|err| err.to_string())?;

@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use sdl2::render::WindowCanvas;
-use sdl2::ttf::Sdl2TtfContext;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
 
 use crate::core::graphics::CanvasService;
@@ -26,7 +25,7 @@ impl CanvasServiceImpl {
     }
 }
 
-impl CanvasService<Sdl2TtfContext, WindowCanvas> for CanvasServiceImpl {
+impl CanvasService<WindowCanvas> for CanvasServiceImpl {
     fn get_canvas(&mut self) -> &mut WindowCanvas {
         &mut self.canvas
     }

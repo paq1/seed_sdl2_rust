@@ -1,11 +1,10 @@
-pub trait CanvasService<SDLCTX, CANVAS> {
+pub trait CanvasService<CANVAS> {
     fn get_canvas(&mut self) -> &mut CANVAS;
 }
 
-pub trait TextService<CTXTTF> {
+pub trait TextService {
     fn create_text(
         &self,
-        ctx_ttf: &CTXTTF,
         text: &str,
         x: i32,
         y :i32,
