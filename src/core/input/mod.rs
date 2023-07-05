@@ -1,4 +1,4 @@
-pub trait InputService: Sync + Send + 'static {
+pub trait InputService {
     fn is_key_pressed(&self, value: &str) -> bool;
 
     fn key_down(&mut self, keyname: String);

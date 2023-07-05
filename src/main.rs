@@ -7,29 +7,77 @@ use std::time::Duration;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
-use sdl2::Sdl;
+use sdl2::ttf::Sdl2TtfContext;
+use crate::app::factories::FontFactory;
 
-use crate::app::graphics::CanvasServiceImpl;
+use crate::app::graphics::canvas_service_sdl::CanvasServiceImpl;
+use crate::app::graphics::text_service_sdl::TextServiceSDL;
+use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::CanvasService;
+use crate::core::graphics::{CanvasService, TextService};
 use crate::core::input::InputService;
-use crate::core::scene::SceneManager;
 use crate::core::scene::scene_menu::SceneMenu;
+use crate::core::scene::SceneManager;
+
+use once_cell::sync::{Lazy};
 
 pub mod utils;
 pub mod core;
 pub mod app;
 
+static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
+    sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
+});
+
 pub fn main() -> Result<(), String> {
-    let canvas_service = Rc::new(
+
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
+    let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
+        .position_centered()
+        .build()
+        .expect("could not initialize the video subsystem");
+    let canvas = window.into_canvas()
+        .build()
+        .expect("Failed to initialize canvas");
+    let texture_creator = canvas.texture_creator();
+
+    let font_factory = Rc::new(
         RefCell::new(
-            Box::new(
-                CanvasServiceImpl::new()?
-            ) as Box<dyn CanvasService<Sdl, WindowCanvas>>
+            FontFactory :: new(&TTF_CONTEXT)?
         )
     );
 
-    let mut event_pump = canvas_service.borrow_mut().get_ctx().event_pump()?;
+    let texture_creator_service = Rc::new(
+        RefCell::new(
+            TextureCreatorService {
+                texture_creator
+            }
+        )
+    );
+
+    let canvas_service = Rc::new(
+        RefCell::new(
+            Box::new(
+                CanvasServiceImpl::new(canvas, Rc::clone(&texture_creator_service))?
+            ) as Box<dyn CanvasService<WindowCanvas>>
+        )
+    );
+
+
+    let text_service = Rc::new(
+        RefCell::new(
+            Box::new(
+                TextServiceSDL::new(
+                    Rc::clone(&canvas_service),
+                    Rc::clone(&texture_creator_service),
+                    Rc::clone(&font_factory)
+                )
+            ) as Box<dyn TextService>
+        )
+    );
+
+    let mut event_pump = sdl_context.event_pump()?;
 
     let input_service = Rc::new(
         RefCell::new(
@@ -39,7 +87,7 @@ pub fn main() -> Result<(), String> {
 
     let scene_menu = SceneMenu {
         key_manager: Rc::clone(&input_service),
-        canvas_service: Rc::clone(&canvas_service)
+        text_service: Rc::clone(&text_service)
     };
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 
@@ -72,9 +120,7 @@ pub fn main() -> Result<(), String> {
         }
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
-        if let Some(x) = scene_manager.current.on_scene() {
-            scene_manager.current = x;
-        }
+        scene_manager.update_scene();
 
         canvas_service.borrow_mut().get_canvas().present();
         // canvas.present();

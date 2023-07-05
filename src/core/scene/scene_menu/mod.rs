@@ -1,31 +1,35 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::core::graphics::CanvasService;
+use crate::core::graphics::TextService;
 use crate::core::input::InputService;
 use crate::core::scene::Scene;
 use crate::core::scene::scene_exemple::SceneExemple;
 
-pub struct SceneMenu<SDLCTX, CANVAS> {
+pub struct SceneMenu {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<SDLCTX, CANVAS>>>>
+    pub text_service: Rc<RefCell<Box<dyn TextService>>>
 }
 
-impl<SDLCTX: 'static, CANVAS: 'static> Scene for SceneMenu<SDLCTX, CANVAS> {
+impl Scene for SceneMenu {
     fn on_scene(
         &mut self
     ) -> Option<Box<dyn Scene>> {
 
-        self.canvas_service.borrow_mut()
-            .create_text("menu", 0,0,100,100)
-            .expect("erreur lors de l'affichage du text");
-
-        let scene_exemple = SceneExemple {
-            key_manager: Rc::clone(&self.key_manager),
-            canvas_service: Rc::clone(&self.canvas_service),
-        };
+        self.text_service.borrow_mut()
+            .create_text(
+                "press space",
+                300,
+                30,
+                300,
+                100
+            ).expect("erreur lors de l'affichage");
 
         if self.key_manager.borrow().is_key_pressed("Space") {
+            let scene_exemple = SceneExemple {
+                key_manager: Rc::clone(&self.key_manager),
+                text_service: Rc::clone(&self.text_service),
+            };
             Some(Box::new(scene_exemple))
         } else {
             None
