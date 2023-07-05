@@ -13,7 +13,8 @@ pub struct SceneMenu {
 
 impl Scene for SceneMenu {
     fn on_scene(
-        &mut self
+        &mut self,
+        _dt: f32
     ) -> Option<Box<dyn Scene>> {
 
         self.text_service.borrow_mut()

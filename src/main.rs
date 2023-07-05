@@ -2,7 +2,7 @@ extern crate sdl2;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -47,7 +47,6 @@ pub fn main() -> Result<(), String> {
             FontFactory :: new(&TTF_CONTEXT)?
         )
     );
-
     let texture_creator_service = Rc::new(
         RefCell::new(
             TextureCreatorService {
@@ -55,7 +54,6 @@ pub fn main() -> Result<(), String> {
             }
         )
     );
-
     let canvas_service = Rc::new(
         RefCell::new(
             Box::new(
@@ -63,8 +61,6 @@ pub fn main() -> Result<(), String> {
             ) as Box<dyn CanvasService<WindowCanvas>>
         )
     );
-
-
     let text_service = Rc::new(
         RefCell::new(
             Box::new(
@@ -76,9 +72,6 @@ pub fn main() -> Result<(), String> {
             ) as Box<dyn TextService>
         )
     );
-
-    let mut event_pump = sdl_context.event_pump()?;
-
     let input_service = Rc::new(
         RefCell::new(
             Box::new(InputServiceImpl::new()) as Box<dyn InputService>
@@ -90,6 +83,15 @@ pub fn main() -> Result<(), String> {
         text_service: Rc::clone(&text_service)
     };
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
+
+    let mut event_pump = sdl_context.event_pump()?;
+
+    let mut last_frame_time = Instant::now();
+
+    let mut time = 0f32;
+
+    let mut frames_per_sec = 0u32;
+    let mut frames = 0u32;
 
     'running: loop {
         canvas_service.borrow_mut().get_canvas().clear();
@@ -118,13 +120,35 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
+
+        let current_time = Instant::now();
+        let delta_time = current_time.duration_since(last_frame_time).as_secs_f32();
+        last_frame_time = current_time;
+
+        time += delta_time;
+        frames += 1;
+
+        if time >= 1f32 {
+            time = 0f32;
+            frames_per_sec = frames;
+            frames = 0;
+        }
+
+        text_service.borrow().create_text(
+            format!("fps : {}", frames_per_sec).as_str(),
+            0,
+            500,
+            300,
+            100
+        )?;
+
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
-        scene_manager.update_scene();
+        scene_manager.update_scene(delta_time);
 
         canvas_service.borrow_mut().get_canvas().present();
         // canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
     Ok(())
 }

@@ -8,7 +8,7 @@ pub struct FontFactory<'a> {
 impl<'a> FontFactory<'a> {
     pub fn new(ctx: &'a Sdl2TtfContext) -> Result<FontFactory<'a>, String> {
         let font_path: &Path = Path::new("assets/fonts/dpcomic.ttf");
-        let mut font: Font<'a, 'a> = ctx.load_font(font_path, 128)?;
+        let mut font: Font<'a, 'a> = ctx.load_font(font_path, 32)?;
         font.set_style(sdl2::ttf::FontStyle::BOLD);
         Ok(
             Self {

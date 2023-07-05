@@ -12,14 +12,15 @@ pub struct SceneExemple {
 
 impl Scene for SceneExemple {
     fn on_scene(
-        &mut self
+        &mut self,
+        _dt: f32
     ) -> Option<Box<dyn Scene>> {
 
         let keys_pressed = self.get_keys_pressed();
         self.text_service.borrow_mut().create_text(
             format!("keys = {}", keys_pressed).as_str(),
             10i32,
-            0i32,
+            0,
             600u32,
             100u32
         ).expect("erreur lors de l'affichage");
