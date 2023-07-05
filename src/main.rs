@@ -20,6 +20,7 @@ use crate::core::scene::scene_menu::SceneMenu;
 use crate::core::scene::SceneManager;
 
 use once_cell::sync::{Lazy};
+use crate::core::graphics::models::color::Color;
 
 pub mod utils;
 pub mod core;
@@ -136,9 +137,10 @@ pub fn main() -> Result<(), String> {
 
         text_service.borrow().create_text(
             format!("fps : {}", frames_per_sec).as_str(),
+            600i32,
             0i32,
-            500i32,
-            32u32
+            16u32,
+            Color::rgb(255u8, 0u8, 0u8)
         )?;
 
         // The rest of the game loop goes here...

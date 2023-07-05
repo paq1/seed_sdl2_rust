@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::core::graphics::models::color::Color;
 
 use crate::core::graphics::TextService;
 use crate::core::input::InputService;
@@ -21,7 +22,8 @@ impl Scene for SceneExemple {
             format!("keys = {}", keys_pressed).as_str(),
             10i32,
             0i32,
-            32u32
+            32u32,
+            Color::rgb(0u8, 200u8, 100u8)
         ).expect("erreur lors de l'affichage");
 
         None

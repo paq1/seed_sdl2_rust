@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::core::graphics::models::color::Color;
 
 use crate::core::graphics::TextService;
 use crate::core::input::InputService;
@@ -22,7 +23,8 @@ impl Scene for SceneMenu {
                 "press space",
                 300,
                 30,
-                32u32
+                32u32,
+                Color::rgb(255u8, 0u8, 0u8)
             ).expect("erreur lors de l'affichage");
 
         if self.key_manager.borrow().is_key_pressed("Space") {
