@@ -7,8 +7,6 @@ pub trait TextService {
         &self,
         text: &str,
         x: i32,
-        y :i32,
-        w: u32,
-        h: u32
+        y :i32
     ) -> Result<(), String>;
 }

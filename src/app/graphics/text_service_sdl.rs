@@ -34,10 +34,11 @@ impl TextService for TextServiceSDL<'_> {
         &self,
         text: &str,
         x: i32,
-        y: i32,
-        w: u32,
-        h: u32
+        y: i32
     ) -> Result<(), String> {
+
+        let font_size = 32u32;
+
         let surface = self.texture_factory.borrow().font
             .render(text)
             .blended(Color::RGB(255,0,0))
@@ -50,7 +51,10 @@ impl TextService for TextServiceSDL<'_> {
             .create_texture_from_surface(surface)
             .map_err(|err| err.to_string())?;
 
-        let target = Rect::new(x, y, w, h);
+        let width = font_size * text.len() as u32;
+        let height = font_size;
+
+        let target = Rect::new(x, y, width, height);
 
         self.canvas_service.borrow_mut().get_canvas().copy(&texture, None, Some(target))?;
 
