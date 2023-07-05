@@ -34,10 +34,9 @@ impl TextService for TextServiceSDL<'_> {
         &self,
         text: &str,
         x: i32,
-        y: i32
+        y: i32,
+        font_size: u32
     ) -> Result<(), String> {
-
-        let font_size = 32u32;
 
         let surface = self.texture_factory.borrow().font
             .render(text)

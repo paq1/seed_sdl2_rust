@@ -137,7 +137,8 @@ pub fn main() -> Result<(), String> {
         text_service.borrow().create_text(
             format!("fps : {}", frames_per_sec).as_str(),
             0i32,
-            500i32
+            500i32,
+            32u32
         )?;
 
         // The rest of the game loop goes here...

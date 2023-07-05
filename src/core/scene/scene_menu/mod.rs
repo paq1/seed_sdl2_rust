@@ -21,7 +21,8 @@ impl Scene for SceneMenu {
             .create_text(
                 "press space",
                 300,
-                30
+                30,
+                32u32
             ).expect("erreur lors de l'affichage");
 
         if self.key_manager.borrow().is_key_pressed("Space") {

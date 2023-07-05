@@ -20,7 +20,8 @@ impl Scene for SceneExemple {
         self.text_service.borrow_mut().create_text(
             format!("keys = {}", keys_pressed).as_str(),
             10i32,
-            0i32
+            0i32,
+            32u32
         ).expect("erreur lors de l'affichage");
 
         None
