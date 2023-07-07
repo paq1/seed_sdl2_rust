@@ -2,10 +2,6 @@ use crate::core::graphics::models::color::Color;
 
 pub mod models;
 
-pub trait CanvasService<CANVAS> {
-    fn get_canvas(&mut self) -> &mut CANVAS;
-}
-
 pub trait TextService {
     fn create_text(
         &self,

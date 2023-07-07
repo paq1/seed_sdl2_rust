@@ -7,23 +7,24 @@ use sdl2::render::WindowCanvas;
 
 use crate::app::factories::FontFactory;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
-use crate::core::graphics::{CanvasService, TextService};
-use crate::core::graphics::models::color::{Color as ColorCore};
+use crate::core::graphics::TextService;
+use crate::core::graphics::models::color::Color as ColorCore;
 
 pub struct TextServiceSDL<'a> {
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
+    // pub canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
+    pub canvas: Rc<RefCell<WindowCanvas>>,
     pub texture_creator_service: Rc<RefCell<TextureCreatorService>>,
     pub texture_factory: Rc<RefCell<FontFactory<'a>>>
 }
 
 impl<'a> TextServiceSDL<'a> {
     pub fn new(
-        canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
+        canvas: Rc<RefCell<WindowCanvas>>,
         texture_creator_service: Rc<RefCell<TextureCreatorService>>,
         texture_factory: Rc<RefCell<FontFactory<'a>>>
     ) -> Self {
         Self {
-            canvas_service,
+            canvas,
             texture_creator_service,
             texture_factory
         }
@@ -59,7 +60,7 @@ impl TextService for TextServiceSDL<'_> {
 
         let target = Rect::new(x, y, width, height);
 
-        self.canvas_service.borrow_mut().get_canvas().copy(&texture, None, Some(target))?;
+        self.canvas.borrow_mut().copy(&texture, None, Some(target))?;
 
         Ok(())
     }

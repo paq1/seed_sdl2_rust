@@ -4,23 +4,20 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
+use once_cell::sync::Lazy;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::render::WindowCanvas;
 use sdl2::ttf::Sdl2TtfContext;
-use crate::app::factories::FontFactory;
 
-use crate::app::graphics::canvas_service_sdl::CanvasServiceImpl;
+use crate::app::factories::FontFactory;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::{CanvasService, TextService};
+use crate::core::graphics::TextService;
+use crate::core::graphics::models::color::Color;
 use crate::core::input::InputService;
 use crate::core::scene::scene_menu::SceneMenu;
 use crate::core::scene::SceneManager;
-
-use once_cell::sync::{Lazy};
-use crate::core::graphics::models::color::Color;
 
 pub mod utils;
 pub mod core;
@@ -31,21 +28,23 @@ static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
 });
 
 pub fn main() -> Result<(), String> {
-
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
         .build()
         .expect("could not initialize the video subsystem");
-    let canvas = window.into_canvas()
-        .build()
-        .expect("Failed to initialize canvas");
-    let texture_creator = canvas.texture_creator();
+    let canvas = Rc::new(
+        RefCell::new(window.into_canvas()
+            .build()
+            .expect("Failed to initialize canvas")
+        )
+    );
+    let texture_creator = canvas.borrow().texture_creator();
 
     let font_factory = Rc::new(
         RefCell::new(
-            FontFactory :: new(&TTF_CONTEXT)?
+            FontFactory::new(&TTF_CONTEXT)?
         )
     );
     let texture_creator_service = Rc::new(
@@ -55,20 +54,14 @@ pub fn main() -> Result<(), String> {
             }
         )
     );
-    let canvas_service = Rc::new(
-        RefCell::new(
-            Box::new(
-                CanvasServiceImpl::new(canvas, Rc::clone(&texture_creator_service))?
-            ) as Box<dyn CanvasService<WindowCanvas>>
-        )
-    );
+
     let text_service = Rc::new(
         RefCell::new(
             Box::new(
                 TextServiceSDL::new(
-                    Rc::clone(&canvas_service),
+                    Rc::clone(&canvas),
                     Rc::clone(&texture_creator_service),
-                    Rc::clone(&font_factory)
+                    Rc::clone(&font_factory),
                 )
             ) as Box<dyn TextService>
         )
@@ -81,7 +74,7 @@ pub fn main() -> Result<(), String> {
 
     let scene_menu = SceneMenu {
         key_manager: Rc::clone(&input_service),
-        text_service: Rc::clone(&text_service)
+        text_service: Rc::clone(&text_service),
     };
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 
@@ -95,7 +88,7 @@ pub fn main() -> Result<(), String> {
     let mut frames = 0u32;
 
     'running: loop {
-        canvas_service.borrow_mut().get_canvas().clear();
+        canvas.borrow_mut().clear();
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } |
@@ -140,14 +133,14 @@ pub fn main() -> Result<(), String> {
             600i32,
             0i32,
             16u32,
-            Color::rgb(255u8, 0u8, 0u8)
+            Color::rgb(255u8, 0u8, 0u8),
         )?;
 
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
         scene_manager.update_scene(delta_time);
 
-        canvas_service.borrow_mut().get_canvas().present();
+        canvas.borrow_mut().present();
         // canvas.present();
         // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
