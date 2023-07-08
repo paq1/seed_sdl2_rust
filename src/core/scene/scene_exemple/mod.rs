@@ -2,20 +2,23 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::core::graphics::models::color::Color;
 
-use crate::core::graphics::TextService;
+use crate::core::graphics::{SpriteService, TextService};
 use crate::core::input::InputService;
-use crate::core::scene::Scene;
+use crate::core::scene::{SceneEnum};
 
 pub struct SceneExemple {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
     pub text_service: Rc<RefCell<Box<dyn TextService>>>
 }
 
-impl Scene for SceneExemple {
-    fn on_scene(
+impl SceneExemple {
+    pub fn on_scene<SS>(
         &mut self,
         _dt: f32
-    ) -> Option<Box<dyn Scene>> {
+    ) -> Option<SceneEnum<SS>>
+        where
+            SS: SpriteService
+    {
 
         let keys_pressed = self.get_keys_pressed();
         self.text_service.borrow_mut().create_text(
@@ -28,9 +31,7 @@ impl Scene for SceneExemple {
 
         None
     }
-}
 
-impl SceneExemple {
     fn get_keys_pressed(&self) -> String {
         self
             .key_manager

@@ -1,7 +1,9 @@
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
+
 use sdl2::rect::{Point, Rect};
 use sdl2::render::WindowCanvas;
+
 use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::core::graphics::SpriteService;
 

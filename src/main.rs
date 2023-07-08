@@ -1,7 +1,8 @@
 extern crate sdl2;
 
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+
+use std::rc::{Rc};
 use std::time::Instant;
 
 use once_cell::sync::Lazy;
@@ -9,7 +10,7 @@ use sdl2::event::Event;
 use sdl2::image::LoadTexture;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::{Point, Rect};
-use sdl2::Sdl;
+
 use sdl2::ttf::Sdl2TtfContext;
 
 use crate::app::factories::FontFactory;
@@ -19,10 +20,10 @@ use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::app::input::InputServiceImpl;
 use crate::core::graphics::models::color::Color;
-use crate::core::graphics::{SpriteService, TextService};
+use crate::core::graphics::{TextService};
 use crate::core::input::InputService;
 use crate::core::scene::scene_menu::SceneMenu;
-use crate::core::scene::SceneManager;
+use crate::core::scene::{SceneEnum, SceneManager};
 
 pub mod utils;
 pub mod core;
@@ -32,11 +33,9 @@ static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
     sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
 });
 
-static SDL_CONTEXT: Sdl = sdl2::init().unwrap();
-
 pub fn main() -> Result<(), String> {
-    // let sdl_context = sdl2::init()?;
-    let video_subsystem = SDL_CONTEXT.video()?;
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
         .build()
@@ -79,11 +78,11 @@ pub fn main() -> Result<(), String> {
         )
     );
 
-    let tc = Rc::new(canvas.borrow().texture_creator());
+    let tc = canvas.borrow().texture_creator();
     // let mut texture_manager = TextureManager::new(&tc);
     let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&tc)?));
 
-    let sprite_service: Rc<RefCell<Box<dyn SpriteService>>> = Rc::new(RefCell::new( Box::new(
+    let sprite_service: Rc<RefCell<Box<SpriteServiceSdl2>>> = Rc::new(RefCell::new( Box::new(
         SpriteServiceSdl2 {
             canvas: Rc::clone(&canvas),
             sprite_factory: Rc::clone(&sprite_factory)
@@ -99,7 +98,7 @@ pub fn main() -> Result<(), String> {
         text_service: Rc::clone(&text_service),
         sprite_service: Rc::clone(&sprite_service)
     };
-    let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
+    let mut scene_manager = SceneManager { current: SceneEnum::SceneMenu(scene_menu) };
 
     let mut event_pump = sdl_context.event_pump()?;
 
