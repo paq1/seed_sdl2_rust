@@ -1,3 +1,5 @@
+pub mod sprite_factory;
+
 use std::path::Path;
 use sdl2::ttf::{Font, Sdl2TtfContext};
 

@@ -12,3 +12,12 @@ pub trait TextService {
         color: Color
     ) -> Result<(), String>;
 }
+
+pub trait SpriteService {
+    fn draw_sprite(
+        &mut self,
+        index: &str,
+        x: i32,
+        y: i32,
+    ) -> Result<(), String>;
+}

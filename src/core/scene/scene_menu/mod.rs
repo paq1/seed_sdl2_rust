@@ -1,15 +1,16 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 use crate::core::graphics::models::color::Color;
 
-use crate::core::graphics::TextService;
+use crate::core::graphics::{SpriteService, TextService};
 use crate::core::input::InputService;
 use crate::core::scene::Scene;
 use crate::core::scene::scene_exemple::SceneExemple;
 
 pub struct SceneMenu {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
-    pub text_service: Rc<RefCell<Box<dyn TextService>>>
+    pub text_service: Rc<RefCell<Box<dyn TextService>>>,
+    pub sprite_service: Rc<RefCell<Box<dyn SpriteService>>>
 }
 
 impl Scene for SceneMenu {

@@ -1,20 +1,25 @@
 extern crate sdl2;
 
 use std::cell::RefCell;
-use std::rc::Rc;
-use std::time::{Duration, Instant};
+use std::rc::{Rc, Weak};
+use std::time::Instant;
 
 use once_cell::sync::Lazy;
 use sdl2::event::Event;
+use sdl2::image::LoadTexture;
 use sdl2::keyboard::Keycode;
+use sdl2::rect::{Point, Rect};
+use sdl2::Sdl;
 use sdl2::ttf::Sdl2TtfContext;
 
 use crate::app::factories::FontFactory;
+use crate::app::factories::sprite_factory::SpriteFactory;
+use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::TextService;
 use crate::core::graphics::models::color::Color;
+use crate::core::graphics::{SpriteService, TextService};
 use crate::core::input::InputService;
 use crate::core::scene::scene_menu::SceneMenu;
 use crate::core::scene::SceneManager;
@@ -27,9 +32,11 @@ static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
     sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
 });
 
+static SDL_CONTEXT: Sdl = sdl2::init().unwrap();
+
 pub fn main() -> Result<(), String> {
-    let sdl_context = sdl2::init()?;
-    let video_subsystem = sdl_context.video()?;
+    // let sdl_context = sdl2::init()?;
+    let video_subsystem = SDL_CONTEXT.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
         .build()
@@ -55,7 +62,7 @@ pub fn main() -> Result<(), String> {
         )
     );
 
-    let text_service = Rc::new(
+    let text_service: Rc<RefCell<Box<dyn TextService>>> = Rc::new(
         RefCell::new(
             Box::new(
                 TextServiceSDL::new(
@@ -63,7 +70,7 @@ pub fn main() -> Result<(), String> {
                     Rc::clone(&texture_creator_service),
                     Rc::clone(&font_factory),
                 )
-            ) as Box<dyn TextService>
+            )
         )
     );
     let input_service = Rc::new(
@@ -72,9 +79,25 @@ pub fn main() -> Result<(), String> {
         )
     );
 
+    let tc = Rc::new(canvas.borrow().texture_creator());
+    // let mut texture_manager = TextureManager::new(&tc);
+    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&tc)?));
+
+    let sprite_service: Rc<RefCell<Box<dyn SpriteService>>> = Rc::new(RefCell::new( Box::new(
+        SpriteServiceSdl2 {
+            canvas: Rc::clone(&canvas),
+            sprite_factory: Rc::clone(&sprite_factory)
+        }
+    )));
+
+    let tc2 = Rc::new(canvas.borrow().texture_creator());
+
+    let texture_test = tc2.load_texture("assets/sprites/smiley_sdl_seed.bmp")?;
+
     let scene_menu = SceneMenu {
         key_manager: Rc::clone(&input_service),
         text_service: Rc::clone(&text_service),
+        sprite_service: Rc::clone(&sprite_service)
     };
     let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
 
@@ -139,6 +162,16 @@ pub fn main() -> Result<(), String> {
         // The rest of the game loop goes here...
         // render(canvas_service.borrow_mut(), input_service.borrow())?;
         scene_manager.update_scene(delta_time);
+
+        canvas.borrow_mut().copy_ex(
+            &texture_test,
+            Rect::new(0,0,32,32),
+            Rect::new(0,0,32,32),
+            0.0,
+            Point::new(16, 16),
+            false,
+            false
+        )?;
 
         canvas.borrow_mut().present();
         // canvas.present();
