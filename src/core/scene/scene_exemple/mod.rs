@@ -3,28 +3,30 @@ use std::rc::Rc;
 use crate::core::graphics::models::color::Color;
 
 use crate::core::graphics::{CanDrawSprite, CanDrawText};
-use crate::core::input::InputService;
+use crate::core::input::CanManageInput;
 use crate::core::scene::{SceneEnum};
 
-pub struct SceneExemple<SpriteService, TextService>
+pub struct SceneExemple<SpriteService, TextService, InputService>
     where
         SpriteService: CanDrawSprite,
-        TextService: CanDrawText
+        TextService: CanDrawText,
+        InputService: CanManageInput
 {
-    pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
+    pub key_manager: Rc<RefCell<InputService>>,
     pub text_service: Rc<RefCell<TextService>>,
     pub sprite_service: Rc<RefCell<SpriteService>>,
 }
 
-impl<SpriteService, TextService> SceneExemple<SpriteService, TextService>
+impl<SpriteService, TextService, InputService:> SceneExemple<SpriteService, TextService, InputService>
     where
         SpriteService: CanDrawSprite,
-        TextService: CanDrawText
+        TextService: CanDrawText,
+        InputService: CanManageInput
 {
     pub fn on_scene(
         &mut self,
         _dt: f32
-    ) -> Option<SceneEnum<SpriteService, TextService>> {
+    ) -> Option<SceneEnum<SpriteService, TextService, InputService>> {
 
         let keys_pressed = self.get_keys_pressed();
         self.text_service.borrow_mut().create_text(

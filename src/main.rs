@@ -16,7 +16,7 @@ use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
 use crate::core::graphics::models::color::Color;
 use crate::core::graphics::CanDrawText;
-use crate::core::input::InputService;
+use crate::core::input::CanManageInput;
 use crate::core::scene::SceneManager;
 
 pub mod utils;
@@ -55,9 +55,9 @@ pub fn main() -> Result<(), String> {
             )
         )
     );
-    let input_service = Rc::new(
+    let input_service: Rc<RefCell<InputServiceImpl>> = Rc::new(
         RefCell::new(
-            Box::new(InputServiceImpl::new()) as Box<dyn InputService>
+            InputServiceImpl::new()
         )
     );
 

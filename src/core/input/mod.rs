@@ -1,4 +1,4 @@
-pub trait InputService {
+pub trait CanManageInput {
     fn is_key_pressed(&self, value: &str) -> bool;
 
     fn key_down(&mut self, keyname: String);

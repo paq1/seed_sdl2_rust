@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::core::input::InputService;
+use crate::core::input::CanManageInput;
 
 pub struct InputServiceImpl {
     pub key_manager: HashMap<String, bool>
@@ -13,7 +13,7 @@ impl InputServiceImpl {
     }
 }
 
-impl InputService for InputServiceImpl {
+impl CanManageInput for InputServiceImpl {
     fn is_key_pressed(&self, value: &str) -> bool {
         *self.key_manager.get(value).unwrap_or(&false)
     }
