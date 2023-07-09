@@ -2,100 +2,122 @@ extern crate sdl2;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::render::WindowCanvas;
-use sdl2::ttf::Sdl2TtfContext;
+use sdl2::mixer::{AUDIO_S16LSB, DEFAULT_CHANNELS};
+
 use crate::app::factories::FontFactory;
-
-use crate::app::graphics::canvas_service_sdl::CanvasServiceImpl;
+use crate::app::factories::music_factory::MusicFactory;
+use crate::app::factories::sprite_factory::SpriteFactory;
+use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
-use crate::app::graphics::texture_creator_service::TextureCreatorService;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::{CanvasService, TextService};
-use crate::core::input::InputService;
-use crate::core::scene::scene_menu::SceneMenu;
-use crate::core::scene::SceneManager;
-
-use once_cell::sync::{Lazy};
+use crate::app::musics::MusicServiceImpl;
+use crate::core::graphics::CanDrawText;
 use crate::core::graphics::models::color::Color;
+use crate::core::input::CanManageInput;
+use crate::core::scene::SceneManager;
 
 pub mod utils;
 pub mod core;
 pub mod app;
 
-static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
-    sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
-});
-
 pub fn main() -> Result<(), String> {
-
     let sdl_context = sdl2::init()?;
+    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
         .build()
         .expect("could not initialize the video subsystem");
-    let canvas = window.into_canvas()
-        .build()
-        .expect("Failed to initialize canvas");
-    let texture_creator = canvas.texture_creator();
+    let canvas = Rc::new(
+        RefCell::new(window.into_canvas()
+            .build()
+            .expect("Failed to initialize canvas")
+        )
+    );
+
+    let _audio = sdl_context.audio()?;
+    let frequency = 44_100;
+    let format = AUDIO_S16LSB; // signed 16 bit samples, in little-endian byte order
+    let channels = DEFAULT_CHANNELS; // Stereo
+    let chunk_size = 1_024;
+    sdl2::mixer::open_audio(frequency, format, channels, chunk_size)?;
+    let _mixer_ctx = sdl2::mixer::init(sdl2::mixer::InitFlag::MP3)?;
+    sdl2::mixer::allocate_channels(4);
+
+    {
+        let n = sdl2::mixer::get_music_decoders_number();
+        println!("available musique decoders : {}", n);
+        for i in 0..n {
+            println!("  decoder {} => {}", i, sdl2::mixer::get_music_decoder(i));
+        }
+    }
 
     let font_factory = Rc::new(
         RefCell::new(
-            FontFactory :: new(&TTF_CONTEXT)?
+            FontFactory::new(&ttf_context)?
         )
     );
-    let texture_creator_service = Rc::new(
+
+    let music_factory = Rc::new(
         RefCell::new(
-            TextureCreatorService {
-                texture_creator
+            MusicFactory::new()?
+        )
+    );
+
+    let music_service = Rc::new(
+        RefCell::new(
+            MusicServiceImpl  {
+                music_factory: Rc::clone(&music_factory)
             }
         )
     );
-    let canvas_service = Rc::new(
+
+    let text_service: Rc<RefCell<TextServiceSDL>> = Rc::new(
         RefCell::new(
-            Box::new(
-                CanvasServiceImpl::new(canvas, Rc::clone(&texture_creator_service))?
-            ) as Box<dyn CanvasService<WindowCanvas>>
+            TextServiceSDL::new(
+                Rc::clone(&canvas),
+                Rc::clone(&font_factory),
+            )
         )
     );
-    let text_service = Rc::new(
+    let input_service: Rc<RefCell<InputServiceImpl>> = Rc::new(
         RefCell::new(
-            Box::new(
-                TextServiceSDL::new(
-                    Rc::clone(&canvas_service),
-                    Rc::clone(&texture_creator_service),
-                    Rc::clone(&font_factory)
-                )
-            ) as Box<dyn TextService>
-        )
-    );
-    let input_service = Rc::new(
-        RefCell::new(
-            Box::new(InputServiceImpl::new()) as Box<dyn InputService>
+            InputServiceImpl::new()
         )
     );
 
-    let scene_menu = SceneMenu {
-        key_manager: Rc::clone(&input_service),
-        text_service: Rc::clone(&text_service)
-    };
-    let mut scene_manager = SceneManager { current: Box::new(scene_menu) };
+    let texture_creator = canvas.borrow().texture_creator();
+    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&texture_creator)?));
 
-    let mut event_pump = sdl_context.event_pump()?;
+    let sprite_service: Rc<RefCell<SpriteServiceSdl2>> = Rc::new(RefCell::new(
+        SpriteServiceSdl2 {
+            canvas: Rc::clone(&canvas),
+            sprite_factory: Rc::clone(&sprite_factory),
+        }
+    ));
 
+    // todo -- initialisation du scene_manager 🤖
+    let mut scene_manager = SceneManager::new(
+        Rc::clone(&input_service),
+        Rc::clone(&text_service),
+        Rc::clone(&sprite_service),
+        Rc::clone(&music_service)
+    );
+
+    // variables de calcul liée au frame et dt
     let mut last_frame_time = Instant::now();
-
     let mut time = 0f32;
-
     let mut frames_per_sec = 0u32;
     let mut frames = 0u32;
 
+    let mut event_pump = sdl_context.event_pump()?;
+
     'running: loop {
-        canvas_service.borrow_mut().get_canvas().clear();
+        canvas.borrow_mut().clear();
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } |
@@ -122,33 +144,29 @@ pub fn main() -> Result<(), String> {
             }
         }
 
+        // todo -- calcul des fps (a bouger ailleur - dans un hud de debug)
         let current_time = Instant::now();
         let delta_time = current_time.duration_since(last_frame_time).as_secs_f32();
         last_frame_time = current_time;
-
         time += delta_time;
         frames += 1;
-
         if time >= 1f32 {
             time = 0f32;
             frames_per_sec = frames;
             frames = 0;
         }
-
         text_service.borrow().create_text(
             format!("fps : {}", frames_per_sec).as_str(),
             600i32,
             0i32,
             16u32,
-            Color::rgb(255u8, 0u8, 0u8)
+            Color::rgb(255u8, 0u8, 0u8),
         )?;
 
-        // The rest of the game loop goes here...
-        // render(canvas_service.borrow_mut(), input_service.borrow())?;
+        // todo -- boucle de gameplay 👾
         scene_manager.update_scene(delta_time);
 
-        canvas_service.borrow_mut().get_canvas().present();
-        // canvas.present();
+        canvas.borrow_mut().present();
         // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
     Ok(())

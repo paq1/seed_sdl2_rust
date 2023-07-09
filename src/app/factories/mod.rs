@@ -1,8 +1,11 @@
+pub mod sprite_factory;
+pub mod music_factory;
+
 use std::path::Path;
 use sdl2::ttf::{Font, Sdl2TtfContext};
 
 pub struct FontFactory<'a> {
-    pub font: Box<Font<'a, 'a>>
+    pub font: Font<'a, 'a>
 }
 
 impl<'a> FontFactory<'a> {
@@ -12,7 +15,7 @@ impl<'a> FontFactory<'a> {
         font.set_style(sdl2::ttf::FontStyle::BOLD);
         Ok(
             Self {
-                font: Box::new(font)
+                font: font
             }
         )
     }

@@ -1,36 +1,37 @@
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
+use sdl2::render::{TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
 
 use crate::app::factories::FontFactory;
-use crate::app::graphics::texture_creator_service::TextureCreatorService;
-use crate::core::graphics::{CanvasService, TextService};
-use crate::core::graphics::models::color::{Color as ColorCore};
+use crate::core::graphics::models::color::Color as ColorCore;
+use crate::core::graphics::CanDrawText;
 
 pub struct TextServiceSDL<'a> {
-    pub canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
-    pub texture_creator_service: Rc<RefCell<TextureCreatorService>>,
+    pub canvas: Rc<RefCell<WindowCanvas>>,
+    pub texture_creator: TextureCreator<WindowContext>,
     pub texture_factory: Rc<RefCell<FontFactory<'a>>>
 }
 
 impl<'a> TextServiceSDL<'a> {
     pub fn new(
-        canvas_service: Rc<RefCell<Box<dyn CanvasService<WindowCanvas>>>>,
-        texture_creator_service: Rc<RefCell<TextureCreatorService>>,
+        canvas: Rc<RefCell<WindowCanvas>>,
         texture_factory: Rc<RefCell<FontFactory<'a>>>
     ) -> Self {
+        let tc = canvas.borrow().texture_creator();
+
         Self {
-            canvas_service,
-            texture_creator_service,
+            canvas,
+            texture_creator: tc,
             texture_factory
         }
     }
 }
 
-impl TextService for TextServiceSDL<'_> {
+impl CanDrawText for TextServiceSDL<'_> {
     fn create_text(
         &self,
         text: &str,
@@ -47,10 +48,7 @@ impl TextService for TextServiceSDL<'_> {
             .blended(color_sdl)
             .map_err(|err| err.to_string())?;
 
-        let t_creator: Ref<TextureCreatorService> = self.texture_creator_service.borrow();
-        let texture_creator = &t_creator.texture_creator;
-
-        let texture = texture_creator
+        let texture = self.texture_creator
             .create_texture_from_surface(surface)
             .map_err(|err| err.to_string())?;
 
@@ -59,7 +57,7 @@ impl TextService for TextServiceSDL<'_> {
 
         let target = Rect::new(x, y, width, height);
 
-        self.canvas_service.borrow_mut().get_canvas().copy(&texture, None, Some(target))?;
+        self.canvas.borrow_mut().copy(&texture, None, Some(target))?;
 
         Ok(())
     }
