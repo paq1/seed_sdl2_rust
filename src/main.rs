@@ -135,7 +135,7 @@ pub fn main() -> Result<(), String> {
             Color::rgb(255u8, 0u8, 0u8),
         )?;
 
-        // todo boucle de gameplay 👾
+        // todo -- boucle de gameplay 👾
         scene_manager.update_scene(delta_time);
 
         canvas.borrow_mut().present();
