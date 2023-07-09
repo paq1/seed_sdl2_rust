@@ -12,7 +12,7 @@ pub struct SceneExemple<SpriteService>
 {
     pub key_manager: Rc<RefCell<Box<dyn InputService>>>,
     pub text_service: Rc<RefCell<Box<dyn TextService>>>,
-    pub sprite_service: Rc<RefCell<Box<SpriteService>>>,
+    pub sprite_service: Rc<RefCell<SpriteService>>,
 }
 
 impl<SpriteService: CanDrawSprite> SceneExemple<SpriteService> {

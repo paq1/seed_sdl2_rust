@@ -82,12 +82,12 @@ pub fn main() -> Result<(), String> {
     // let mut texture_manager = TextureManager::new(&tc);
     let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&tc)?));
 
-    let sprite_service: Rc<RefCell<Box<SpriteServiceSdl2>>> = Rc::new(RefCell::new( Box::new(
+    let sprite_service: Rc<RefCell<SpriteServiceSdl2>> = Rc::new(RefCell::new(
         SpriteServiceSdl2 {
             canvas: Rc::clone(&canvas),
             sprite_factory: Rc::clone(&sprite_factory)
         }
-    )));
+    ));
 
     let tc2 = Rc::new(canvas.borrow().texture_creator());
 
