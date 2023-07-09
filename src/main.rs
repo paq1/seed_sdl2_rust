@@ -7,8 +7,8 @@ use std::time::Instant;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::mixer::{AUDIO_S16LSB, DEFAULT_CHANNELS};
+use crate::app::factories::font_factory::FontFactory;
 
-use crate::app::factories::FontFactory;
 use crate::app::factories::music_factory::MusicFactory;
 use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;

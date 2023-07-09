@@ -6,9 +6,9 @@ use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
-use crate::app::factories::FontFactory;
-use crate::core::graphics::models::color::Color as ColorCore;
+use crate::app::factories::font_factory::FontFactory;
 use crate::core::graphics::CanDrawText;
+use crate::core::graphics::models::color::Color as ColorCore;
 
 pub struct TextServiceSDL<'a> {
     pub canvas: Rc<RefCell<WindowCanvas>>,
