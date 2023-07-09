@@ -13,7 +13,7 @@ pub trait TextService {
     ) -> Result<(), String>;
 }
 
-pub trait SpriteService {
+pub trait CanDrawSprite {
     fn draw_sprite(
         &mut self,
         index: &str,

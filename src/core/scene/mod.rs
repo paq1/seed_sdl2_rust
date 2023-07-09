@@ -1,4 +1,4 @@
-use crate::core::graphics::SpriteService;
+use crate::core::graphics::CanDrawSprite;
 use crate::core::scene::scene_exemple::SceneExemple;
 use crate::core::scene::scene_menu::SceneMenu;
 
@@ -8,10 +8,10 @@ pub mod scene_exemple;
 
 pub enum SceneEnum<SS>
     where
-        SS: SpriteService
+        SS: CanDrawSprite
 {
     SceneMenu(SceneMenu<SS>),
-    SceneExemple(SceneExemple)
+    SceneExemple(SceneExemple<SS>)
 }
 
 // pub trait Scene {
@@ -21,12 +21,12 @@ pub enum SceneEnum<SS>
 
 pub struct SceneManager<SS>
     where
-        SS: SpriteService
+        SS: CanDrawSprite
 {
     pub current: SceneEnum<SS>
 }
 
-impl<SS: SpriteService> SceneManager<SS> {
+impl<SS: CanDrawSprite> SceneManager<SS> {
     pub fn update_scene(&mut self, dt: f32) {
 
         let nouvelle_scene = match &mut self.current {

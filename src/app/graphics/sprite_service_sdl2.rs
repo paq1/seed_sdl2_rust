@@ -5,14 +5,14 @@ use sdl2::rect::{Point, Rect};
 use sdl2::render::WindowCanvas;
 
 use crate::app::factories::sprite_factory::SpriteFactory;
-use crate::core::graphics::SpriteService;
+use crate::core::graphics::CanDrawSprite;
 
 pub struct SpriteServiceSdl2<'sf> {
     pub canvas: Rc<RefCell<WindowCanvas>>,
     pub sprite_factory: Rc<RefCell<SpriteFactory<'sf>>>
 }
 
-impl<'sf> SpriteService for SpriteServiceSdl2<'sf> {
+impl<'sf> CanDrawSprite for SpriteServiceSdl2<'sf> {
     fn draw_sprite(&mut self, index: &str, x: i32, y: i32) -> Result<(), String> {
 
         let sprite = &self.sprite_factory.borrow().spite_smiley;
