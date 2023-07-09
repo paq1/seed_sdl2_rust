@@ -1,1 +1,0 @@
-pub struct ImageServiceSdl2;
