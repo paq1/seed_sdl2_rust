@@ -8,7 +8,7 @@ use sdl2::video::WindowContext;
 
 use crate::app::factories::FontFactory;
 use crate::core::graphics::models::color::Color as ColorCore;
-use crate::core::graphics::TextService;
+use crate::core::graphics::CanDrawText;
 
 pub struct TextServiceSDL<'a> {
     pub canvas: Rc<RefCell<WindowCanvas>>,
@@ -31,7 +31,7 @@ impl<'a> TextServiceSDL<'a> {
     }
 }
 
-impl TextService for TextServiceSDL<'_> {
+impl CanDrawText for TextServiceSDL<'_> {
     fn create_text(
         &self,
         text: &str,

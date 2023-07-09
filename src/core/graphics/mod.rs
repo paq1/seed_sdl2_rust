@@ -2,7 +2,7 @@ use crate::core::graphics::models::color::Color;
 
 pub mod models;
 
-pub trait TextService {
+pub trait CanDrawText {
     fn create_text(
         &self,
         text: &str,

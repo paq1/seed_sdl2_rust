@@ -15,7 +15,7 @@ use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
 use crate::core::graphics::models::color::Color;
-use crate::core::graphics::TextService;
+use crate::core::graphics::CanDrawText;
 use crate::core::input::InputService;
 use crate::core::scene::SceneManager;
 
@@ -47,13 +47,11 @@ pub fn main() -> Result<(), String> {
         )
     );
 
-    let text_service: Rc<RefCell<Box<dyn TextService>>> = Rc::new(
+    let text_service: Rc<RefCell<TextServiceSDL>> = Rc::new(
         RefCell::new(
-            Box::new(
-                TextServiceSDL::new(
-                    Rc::clone(&canvas),
-                    Rc::clone(&font_factory),
-                )
+            TextServiceSDL::new(
+                Rc::clone(&canvas),
+                Rc::clone(&font_factory),
             )
         )
     );
@@ -74,7 +72,7 @@ pub fn main() -> Result<(), String> {
     ));
 
     // todo -- initialisation du scene_manager 🤖
-    let mut scene_manager = SceneManager :: new(
+    let mut scene_manager = SceneManager::new(
         Rc::clone(&input_service),
         Rc::clone(&text_service),
         Rc::clone(&sprite_service),
