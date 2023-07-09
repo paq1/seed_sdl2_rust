@@ -14,11 +14,10 @@ use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::TextService;
 use crate::core::graphics::models::color::Color;
+use crate::core::graphics::TextService;
 use crate::core::input::InputService;
-use crate::core::scene::{SceneEnum, SceneManager};
-use crate::core::scene::scene_menu::SceneMenu;
+use crate::core::scene::SceneManager;
 
 pub mod utils;
 pub mod core;
@@ -74,21 +73,20 @@ pub fn main() -> Result<(), String> {
         }
     ));
 
-    // todo -- initialisation de la scene de début du jeu 🤖
-    let scene_menu = SceneMenu {
-        key_manager: Rc::clone(&input_service),
-        text_service: Rc::clone(&text_service),
-        sprite_service: Rc::clone(&sprite_service),
-    };
-    let mut scene_manager = SceneManager { current: SceneEnum::SceneMenu(scene_menu) };
-
-    let mut event_pump = sdl_context.event_pump()?;
+    // todo -- initialisation du scene_manager 🤖
+    let mut scene_manager = SceneManager :: new(
+        Rc::clone(&input_service),
+        Rc::clone(&text_service),
+        Rc::clone(&sprite_service),
+    );
 
     // variables de calcul liée au frame et dt
     let mut last_frame_time = Instant::now();
     let mut time = 0f32;
     let mut frames_per_sec = 0u32;
     let mut frames = 0u32;
+
+    let mut event_pump = sdl_context.event_pump()?;
 
     'running: loop {
         canvas.borrow_mut().clear();
