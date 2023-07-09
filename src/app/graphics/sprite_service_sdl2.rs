@@ -15,7 +15,8 @@ pub struct SpriteServiceSdl2<'sf> {
 impl<'sf> CanDrawSprite for SpriteServiceSdl2<'sf> {
     fn draw_sprite(&mut self, index: &str, x: i32, y: i32) -> Result<(), String> {
 
-        let sprite = &self.sprite_factory.borrow().spite_smiley;
+        let fact = self.sprite_factory.borrow();
+        let sprite = fact.sprites.get(index).expect(format!("erreur sprite {} inconnu", index).as_str());
 
         self.canvas.borrow_mut().copy_ex(
             sprite,

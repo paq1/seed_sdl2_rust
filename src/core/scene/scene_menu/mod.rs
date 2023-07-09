@@ -49,7 +49,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
             ).expect("erreur lors de l'affichage");
 
 
-        self.sprite_service.borrow_mut().draw_sprite("nimp", 300, 300).expect("err");
+        self.sprite_service.borrow_mut().draw_sprite("smiley", 300, 300).expect("err");
 
         if self.key_manager.borrow().is_key_pressed("Space") {
             self.music_service.borrow().stop().expect("erreur lors de l'arret de la musique");
