@@ -6,12 +6,15 @@ use std::time::Instant;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::mixer::{AUDIO_S16LSB, DEFAULT_CHANNELS};
 
 use crate::app::factories::FontFactory;
+use crate::app::factories::music_factory::MusicFactory;
 use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
+use crate::app::musics::MusicServiceImpl;
 use crate::core::graphics::CanDrawText;
 use crate::core::graphics::models::color::Color;
 use crate::core::input::CanManageInput;
@@ -36,9 +39,40 @@ pub fn main() -> Result<(), String> {
         )
     );
 
+    let _audio = sdl_context.audio()?;
+    let frequency = 44_100;
+    let format = AUDIO_S16LSB; // signed 16 bit samples, in little-endian byte order
+    let channels = DEFAULT_CHANNELS; // Stereo
+    let chunk_size = 1_024;
+    sdl2::mixer::open_audio(frequency, format, channels, chunk_size)?;
+    let _mixer_ctx = sdl2::mixer::init(sdl2::mixer::InitFlag::MP3)?;
+    sdl2::mixer::allocate_channels(4);
+
+    {
+        let n = sdl2::mixer::get_music_decoders_number();
+        println!("available musique decoders : {}", n);
+        for i in 0..n {
+            println!("  decoder {} => {}", i, sdl2::mixer::get_music_decoder(i));
+        }
+    }
+
     let font_factory = Rc::new(
         RefCell::new(
             FontFactory::new(&ttf_context)?
+        )
+    );
+
+    let music_factory = Rc::new(
+        RefCell::new(
+            MusicFactory::new()?
+        )
+    );
+
+    let music_service = Rc::new(
+        RefCell::new(
+            MusicServiceImpl  {
+                music_factory: Rc::clone(&music_factory)
+            }
         )
     );
 
@@ -71,6 +105,7 @@ pub fn main() -> Result<(), String> {
         Rc::clone(&input_service),
         Rc::clone(&text_service),
         Rc::clone(&sprite_service),
+        Rc::clone(&music_service)
     );
 
     // variables de calcul liée au frame et dt
