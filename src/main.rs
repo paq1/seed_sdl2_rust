@@ -4,18 +4,16 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Instant;
 
-use once_cell::sync::Lazy;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::ttf::Sdl2TtfContext;
 
 use crate::app::factories::FontFactory;
 use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
-use crate::core::graphics::models::color::Color;
 use crate::core::graphics::CanDrawText;
+use crate::core::graphics::models::color::Color;
 use crate::core::input::CanManageInput;
 use crate::core::scene::SceneManager;
 
@@ -23,12 +21,9 @@ pub mod utils;
 pub mod core;
 pub mod app;
 
-static TTF_CONTEXT: Lazy<Sdl2TtfContext> = Lazy::new(|| {
-    sdl2::ttf::init().map_err(|e| e.to_string()).expect("erreur")
-});
-
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
+    let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
         .position_centered()
@@ -43,7 +38,7 @@ pub fn main() -> Result<(), String> {
 
     let font_factory = Rc::new(
         RefCell::new(
-            FontFactory::new(&TTF_CONTEXT)?
+            FontFactory::new(&ttf_context)?
         )
     );
 
