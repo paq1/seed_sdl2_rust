@@ -38,20 +38,24 @@ pub fn main() -> Result<(), String> {
             .expect("Failed to initialize canvas")
         )
     );
+    let texture_creator = canvas.borrow().texture_creator();
 
     // todo -- factories -- ajoutez vos factories ici 🏭
-    let font_factory = Rc::new(
+    let font_factory: Rc<RefCell<FontFactory>> = Rc::new(
         RefCell::new(
             FontFactory::new(&ttf_context)?
         )
     );
-    let music_factory = Rc::new(
+    let music_factory: Rc<RefCell<MusicFactory>> = Rc::new(
         RefCell::new(
             MusicFactory::new()?
         )
     );
-    let texture_creator = canvas.borrow().texture_creator();
-    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&texture_creator)?));
+    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(
+        RefCell::new(
+            SpriteFactory::new(&texture_creator)?
+        )
+    );
 
     // todo -- services -- instanciez vos services ici 🛸
     let music_service = Rc::new(
