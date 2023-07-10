@@ -39,18 +39,21 @@ pub fn main() -> Result<(), String> {
         )
     );
 
+    // todo -- factories -- ajoutez vos factories ici 🏭
     let font_factory = Rc::new(
         RefCell::new(
             FontFactory::new(&ttf_context)?
         )
     );
-
     let music_factory = Rc::new(
         RefCell::new(
             MusicFactory::new()?
         )
     );
+    let texture_creator = canvas.borrow().texture_creator();
+    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&texture_creator)?));
 
+    // todo -- services -- instanciez vos services ici 🛸
     let music_service = Rc::new(
         RefCell::new(
             MusicServiceImpl  {
@@ -58,7 +61,6 @@ pub fn main() -> Result<(), String> {
             }
         )
     );
-
     let text_service: Rc<RefCell<TextServiceSDL>> = Rc::new(
         RefCell::new(
             TextServiceSDL::new(
@@ -72,10 +74,6 @@ pub fn main() -> Result<(), String> {
             InputServiceImpl::new()
         )
     );
-
-    let texture_creator = canvas.borrow().texture_creator();
-    let sprite_factory: Rc<RefCell<SpriteFactory>> = Rc::new(RefCell::new(SpriteFactory::new(&texture_creator)?));
-
     let sprite_service: Rc<RefCell<SpriteServiceSdl2>> = Rc::new(RefCell::new(
         SpriteServiceSdl2 {
             canvas: Rc::clone(&canvas),
