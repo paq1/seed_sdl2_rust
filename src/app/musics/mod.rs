@@ -8,8 +8,10 @@ pub struct MusicServiceImpl<'mf> {
 }
 
 impl<'mf> CanPlayMusic for MusicServiceImpl<'mf> {
-    fn play(&self) -> Result<(), String> {
-        self.music_factory.borrow().music_menu.play(-1)
+    fn play(&self, id: &str) -> Result<(), String> {
+        self.music_factory.borrow().musics.get(id).map(|music| music.play(-1))
+            .map(|_| Ok(()))
+            .unwrap_or(Err(format!("musique : '{}' inconnue", id).to_string()))
     }
 
     fn stop(&self) -> Result<(), String> {
