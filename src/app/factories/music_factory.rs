@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-use sdl2::mixer::{AUDIO_S16LSB, DEFAULT_CHANNELS, Music, Sdl2MixerContext};
+use sdl2::mixer::{AUDIO_S16LSB, Chunk, DEFAULT_CHANNELS, Music, Sdl2MixerContext};
 
 pub struct MusicFactory<'m> {
     pub musics: HashMap<&'m str, Music<'m>>,
+    pub sounds: HashMap<&'m str, Chunk>,
     _context_mixer: Sdl2MixerContext,
 }
 
@@ -35,10 +36,21 @@ impl<'m> MusicFactory<'m> {
             .into_iter()
             .collect::<HashMap<&str, Music>>();
 
+
+        let sound_arme_path: &Path = Path::new("assets/sounds/arme.mp3");
+        let sound_arme = sdl2::mixer::Chunk::from_file(sound_arme_path)?;
+
+        let sounds = [
+            ("arme", sound_arme)
+        ]
+            .into_iter()
+            .collect::<HashMap<&str, Chunk>>();
+
         Ok(
             Self {
                 musics,
-                _context_mixer: mixer_ctx,
+                sounds,
+                _context_mixer: mixer_ctx
             }
         )
     }

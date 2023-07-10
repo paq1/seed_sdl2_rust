@@ -51,6 +51,10 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
 
         self.sprite_service.borrow_mut().draw_sprite("smiley", 300, 300).expect("err");
 
+        if self.key_manager.borrow().is_key_pressed("X") {
+            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
+        }
+
         if self.key_manager.borrow().is_key_pressed("Space") {
             self.music_service.borrow().stop().expect("erreur lors de l'arret de la musique");
             let scene_exemple = SceneExemple::new(
