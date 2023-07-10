@@ -58,7 +58,7 @@ pub fn main() -> Result<(), String> {
     );
 
     // todo -- services -- instanciez vos services ici 🛸
-    let music_service = Rc::new(
+    let music_service: Rc<RefCell<MusicServiceImpl>> = Rc::new(
         RefCell::new(
             MusicServiceImpl  {
                 music_factory: Rc::clone(&music_factory)
