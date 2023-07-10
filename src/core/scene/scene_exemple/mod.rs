@@ -1,4 +1,5 @@
 pub mod scene_exemple_data;
+pub mod player;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,10 +34,13 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 {
     pub fn on_scene(
         &mut self,
-        _dt: f32
+        dt: f32
     ) -> Option<SceneEnum<SpriteService, TextService, InputService, MusicService>> {
 
         self.init_scene().expect("erreur lors de l'initialisation de la scene");
+
+        self.update_player(dt).expect("erreur lors de l'update du player");
+        self.draw_player().expect("erreur lors de l'affichage du player");
 
         let keys_pressed = self.get_keys_pressed();
         self.text_service.borrow_mut().create_text(
@@ -69,9 +73,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
             text_service,
             sprite_service,
             music_service,
-            data: SceneExempleData {
-                is_init: false,
-            }
+            data: SceneExempleData::new()
         }
     }
 
@@ -82,5 +84,33 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         } else {
             Ok(())
         }
+    }
+
+    fn update_player(&mut self, dt: f32) -> Result<(), String> {
+        let vitesse = 100f32;
+        let vitesse_temps = (vitesse * dt);
+
+        if self.key_manager.borrow().is_key_pressed("Z") {
+            self.data.player.y -= vitesse_temps
+        }
+        if self.key_manager.borrow().is_key_pressed("D") {
+            println!("{}", vitesse_temps);
+            self.data.player.x += vitesse_temps
+        }
+        if self.key_manager.borrow().is_key_pressed("S") {
+            self.data.player.y += vitesse_temps
+        }
+        if self.key_manager.borrow().is_key_pressed("Q") {
+            self.data.player.x -= vitesse_temps
+        }
+        Ok(())
+    }
+
+    fn draw_player(&mut self) -> Result<(), String> {
+        self.sprite_service.borrow_mut().draw_sprite(
+            "smiley",
+            self.data.player.x as i32,
+            self.data.player.y as i32,
+        )
     }
 }
