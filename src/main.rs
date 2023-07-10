@@ -2,7 +2,6 @@ extern crate sdl2;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::time::Instant;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -14,6 +13,7 @@ use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
 use crate::app::graphics::text_service_sdl::TextServiceSDL;
 use crate::app::input::InputServiceImpl;
 use crate::app::musics::MusicServiceImpl;
+use crate::app::times::TimeServiceImpl;
 use crate::core::graphics::CanDrawText;
 use crate::core::graphics::models::color::Color;
 use crate::core::input::CanManageInput;
@@ -93,11 +93,8 @@ pub fn main() -> Result<(), String> {
         Rc::clone(&music_service)
     );
 
-    // variables de calcul liée au frame et dt
-    let mut last_frame_time = Instant::now();
-    let mut time = 0f32;
-    let mut frames_per_sec = 0u32;
-    let mut frames = 0u32;
+
+    let mut times = TimeServiceImpl::new();
 
     let mut event_pump = sdl_context.event_pump()?;
 
@@ -130,18 +127,10 @@ pub fn main() -> Result<(), String> {
         }
 
         // todo -- calcul des fps (a bouger ailleur - dans un hud de debug)
-        let current_time = Instant::now();
-        let delta_time = current_time.duration_since(last_frame_time).as_secs_f32();
-        last_frame_time = current_time;
-        time += delta_time;
-        frames += 1;
-        if time >= 1f32 {
-            time = 0f32;
-            frames_per_sec = frames;
-            frames = 0;
-        }
+        let delta_time = times.calcul_delta_time();
+
         text_service.borrow().create_text(
-            format!("fps : {}", frames_per_sec).as_str(),
+            format!("fps : {}", times.frames_per_sec).as_str(),
             600i32,
             0i32,
             16u32,
