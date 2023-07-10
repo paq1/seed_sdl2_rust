@@ -93,9 +93,7 @@ pub fn main() -> Result<(), String> {
         Rc::clone(&music_service)
     );
 
-
     let mut times = TimeServiceImpl::new();
-
     let mut event_pump = sdl_context.event_pump()?;
 
     'running: loop {
