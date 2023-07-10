@@ -124,7 +124,7 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-        // todo -- calcul des fps (a bouger ailleur - dans un hud de debug)
+        // todo -- fps / dt ... etc ⏰
         let delta_time = times.calcul_delta_time();
 
         text_service.borrow().create_text(
