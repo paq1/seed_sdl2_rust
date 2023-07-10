@@ -6,9 +6,8 @@ use std::time::Instant;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::mixer::{AUDIO_S16LSB, DEFAULT_CHANNELS};
-use crate::app::factories::font_factory::FontFactory;
 
+use crate::app::factories::font_factory::FontFactory;
 use crate::app::factories::music_factory::MusicFactory;
 use crate::app::factories::sprite_factory::SpriteFactory;
 use crate::app::graphics::sprite_service_sdl2::SpriteServiceSdl2;
@@ -26,6 +25,7 @@ pub mod app;
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
+    let _audio = sdl_context.audio()?;
     let ttf_context = sdl2::ttf::init().map_err(|e| e.to_string())?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem.window("seed sdl2 -- paq1", 800, 600)
@@ -38,23 +38,6 @@ pub fn main() -> Result<(), String> {
             .expect("Failed to initialize canvas")
         )
     );
-
-    let _audio = sdl_context.audio()?;
-    let frequency = 44_100;
-    let format = AUDIO_S16LSB; // signed 16 bit samples, in little-endian byte order
-    let channels = DEFAULT_CHANNELS; // Stereo
-    let chunk_size = 1_024;
-    sdl2::mixer::open_audio(frequency, format, channels, chunk_size)?;
-    let _mixer_ctx = sdl2::mixer::init(sdl2::mixer::InitFlag::MP3)?;
-    sdl2::mixer::allocate_channels(4);
-
-    {
-        let n = sdl2::mixer::get_music_decoders_number();
-        println!("available musique decoders : {}", n);
-        for i in 0..n {
-            println!("  decoder {} => {}", i, sdl2::mixer::get_music_decoder(i));
-        }
-    }
 
     let font_factory = Rc::new(
         RefCell::new(
