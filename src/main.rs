@@ -127,6 +127,10 @@ pub fn main() -> Result<(), String> {
         // todo -- fps / dt ... etc ⏰
         let delta_time = times.calcul_delta_time();
 
+        // todo -- boucle de gameplay 👾
+        scene_manager.update_scene(delta_time);
+
+        // debug afficha000
         text_service.borrow().create_text(
             format!("fps : {}", times.frames_per_sec).as_str(),
             600i32,
@@ -134,9 +138,6 @@ pub fn main() -> Result<(), String> {
             16u32,
             Color::rgb(255u8, 0u8, 0u8),
         )?;
-
-        // todo -- boucle de gameplay 👾
-        scene_manager.update_scene(delta_time);
 
         canvas.borrow_mut().present();
         // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
