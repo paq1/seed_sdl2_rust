@@ -88,13 +88,12 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
     fn update_player(&mut self, dt: f32) -> Result<(), String> {
         let vitesse = 100f32;
-        let vitesse_temps = (vitesse * dt);
+        let vitesse_temps = vitesse * dt;
 
         if self.key_manager.borrow().is_key_pressed("Z") {
             self.data.player.y -= vitesse_temps
         }
         if self.key_manager.borrow().is_key_pressed("D") {
-            println!("{}", vitesse_temps);
             self.data.player.x += vitesse_temps
         }
         if self.key_manager.borrow().is_key_pressed("S") {
