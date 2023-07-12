@@ -43,6 +43,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
         self.update_player(dt).expect("erreur lors de l'update du player");
         self.update_camera();
+        self.test_play_sound();
 
         self.draw_tilemap().expect("erreur lors de l'affichage de la map");
         self.draw_player().expect("erreur lors de l'affichage du player");
@@ -52,7 +53,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
             format!("keys = {}", keys_pressed).as_str(),
             10i32,
             0i32,
-            32u32,
+            14u32,
             Color::rgb(0u8, 200u8, 100u8)
         ).expect("erreur lors de l'affichage");
 
@@ -165,5 +166,11 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         let margin = 100;
         // fixme utilise un service window (pas encore dev) afin de recupere ces info
         point_x > 0 - margin && point_x < window_width && point_y > 0 - margin && point_y < window_height
+    }
+
+    fn test_play_sound(&self) {
+        if self.key_manager.borrow().is_key_pressed("X") {
+            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
+        }
     }
 }

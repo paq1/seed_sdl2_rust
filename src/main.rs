@@ -133,9 +133,9 @@ pub fn main() -> Result<(), String> {
         // debug afficha000
         text_service.borrow().create_text(
             format!("fps : {}", times.frames_per_sec).as_str(),
-            600i32,
+            800i32 - 5 * 32,
             0i32,
-            16u32,
+            14u32,
             Color::rgb(255u8, 0u8, 0u8),
         )?;
 

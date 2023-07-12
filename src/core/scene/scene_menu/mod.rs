@@ -89,6 +89,17 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
         }
     }
 
+    fn draw_text_title(&mut self) {
+        self.text_service.borrow_mut()
+            .create_text(
+                "Seed SDL-2 for jam",
+                32 * 1,
+                0 + 32 * 3,
+                40u32,
+                Color::rgb(100u8, 0u8, 200u8)
+            ).expect("erreur lors de l'affichage");
+    }
+
     fn draw_text_for_change_scene(&mut self) {
         self.text_service.borrow_mut()
             .create_text(
@@ -97,17 +108,6 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
                 600 - 32 * 3,
                 32u32,
                 Color::rgb(255u8, 0u8, 0u8)
-            ).expect("erreur lors de l'affichage");
-    }
-
-    fn draw_text_title(&mut self) {
-        self.text_service.borrow_mut()
-            .create_text(
-                "Seed SDL-2 for jam",
-                32 * 4,
-                0 + 32 * 3,
-                32u32,
-                Color::rgb(100u8, 0u8, 200u8)
             ).expect("erreur lors de l'affichage");
     }
 
