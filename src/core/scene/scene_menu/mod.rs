@@ -39,34 +39,12 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
 
         self.init_scene().expect("erreur lors de l'initialisation du menu");
 
-        self.text_service.borrow_mut()
-            .create_text(
-                "press space",
-                300,
-                30,
-                32u32,
-                Color::rgb(255u8, 0u8, 0u8)
-            ).expect("erreur lors de l'affichage");
+        let next_scene = self.change_scene();
+        self.test_play_sound();
 
+        self.draw_text_for_change_scene();
 
-        self.sprite_service.borrow_mut().draw_sprite("smiley", 300, 300).expect("err");
-
-        if self.key_manager.borrow().is_key_pressed("X") {
-            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
-        }
-
-        if self.key_manager.borrow().is_key_pressed("Space") {
-            self.music_service.borrow().stop().expect("erreur lors de l'arret de la musique");
-            let scene_exemple = SceneExemple::new(
-                Rc::clone(&self.key_manager),
-                Rc::clone(&self.text_service),
-                Rc::clone(&self.sprite_service),
-                Rc::clone(&self.music_service)
-            );
-            Some(SceneEnum::SceneExemple(scene_exemple))
-        } else {
-            None
-        }
+        next_scene
     }
 
     pub fn new(
@@ -92,6 +70,38 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
             self.music_service.borrow().play("digital-love")
         } else {
             Ok(())
+        }
+    }
+
+    fn change_scene(&mut self) -> Option<SceneEnum<SpriteService, TextService, InputService, MusicService>> {
+        if self.key_manager.borrow().is_key_pressed("Space") {
+            self.music_service.borrow().stop().expect("erreur lors de l'arret de la musique");
+            let scene_exemple = SceneExemple::new(
+                Rc::clone(&self.key_manager),
+                Rc::clone(&self.text_service),
+                Rc::clone(&self.sprite_service),
+                Rc::clone(&self.music_service)
+            );
+            Some(SceneEnum::SceneExemple(scene_exemple))
+        } else {
+            None
+        }
+    }
+
+    fn draw_text_for_change_scene(&mut self) {
+        self.text_service.borrow_mut()
+            .create_text(
+                "[press space]",
+                32 * 6,
+                600 - 32 * 3,
+                32u32,
+                Color::rgb(255u8, 0u8, 0u8)
+            ).expect("erreur lors de l'affichage");
+    }
+
+    fn test_play_sound(&self) {
+        if self.key_manager.borrow().is_key_pressed("X") {
+            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
         }
     }
 }
