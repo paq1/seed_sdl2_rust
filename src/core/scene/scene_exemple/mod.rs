@@ -11,6 +11,7 @@ use crate::core::input::CanManageInput;
 use crate::core::musics::CanPlayMusic;
 use crate::core::scene::{SceneEnum};
 use crate::core::scene::scene_exemple::scene_exemple_data::SceneExempleData;
+use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub struct SceneExemple<SpriteService, TextService, InputService, MusicService>
     where
@@ -40,8 +41,8 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
         self.init_scene().expect("erreur lors de l'initialisation de la scene");
 
-
         self.update_player(dt).expect("erreur lors de l'update du player");
+        self.update_camera();
 
         self.draw_tilemap().expect("erreur lors de l'affichage de la map");
         self.draw_player().expect("erreur lors de l'affichage du player");
@@ -95,30 +96,39 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         let vitesse_temps = vitesse * dt;
 
         if self.key_manager.borrow().is_key_pressed("Z") {
-            self.data.player.y -= vitesse_temps
+            self.data.player.pos.y -= vitesse_temps;
         }
         if self.key_manager.borrow().is_key_pressed("D") {
-            self.data.player.x += vitesse_temps
+            self.data.player.pos.x += vitesse_temps;
         }
         if self.key_manager.borrow().is_key_pressed("S") {
-            self.data.player.y += vitesse_temps
+            self.data.player.pos.y += vitesse_temps;
         }
         if self.key_manager.borrow().is_key_pressed("Q") {
-            self.data.player.x -= vitesse_temps
+            self.data.player.pos.x -= vitesse_temps;
         }
         Ok(())
+    }
+
+    fn update_camera(&mut self) {
+        let window_width = 800f32; // fixme utiliser un service window afin de recup les infos de la window
+        let window_height = 600f32; // fixme utiliser un service window afin de recup les infos de la window
+        // let vec_player = self.data.player.pos.clone();
+        self.data.camera = Vecteur2D::new(
+            self.data.player.pos.x - window_width / 2.0,
+            self.data.player.pos.y - window_height / 2.0,
+        );
     }
 
     fn draw_player(&mut self) -> Result<(), String> {
         self.sprite_service.borrow_mut().draw_sprite(
             "smiley",
-            self.data.player.x as i32,
-            self.data.player.y as i32,
+            self.data.player.pos.x as i32 - self.data.camera.x as i32,
+            self.data.player.pos.y as i32 - self.data.camera.y as i32,
         )
     }
 
     fn draw_tilemap(&mut self) -> Result<(), String> {
-
         self.data
             .tilemap
             .tiles
@@ -126,26 +136,34 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
             .for_each(|line| {
                 line
                     .iter_mut()
-                    .filter(|current| SceneExemple::<SpriteService, TextService, InputService, MusicService>::is_in_screen(current.x as i32 * 32, current.y as i32 * 32))
+                    .filter(|current| {
+                        SceneExemple::<
+                            SpriteService,
+                            TextService,
+                            InputService,
+                            MusicService
+                        >::is_in_screen(
+                            current.pos.x as i32 * 32 - self.data.camera.x as i32,
+                            current.pos.y as i32 * 32 - self.data.camera.y as i32
+                        )
+                    })
                     .for_each(|current| {
                         self.sprite_service.borrow_mut().draw_sprite(
                             "tile_herbe",
-                            current.x as i32 * 32,
-                            current.y as i32 * 32,
+                            current.pos.x as i32 * 32 - self.data.camera.x as i32,
+                            current.pos.y as i32 * 32 - self.data.camera.y as i32,
                         ).expect("erreur de lors de la 'affiche de la tuile");
                     });
             });
 
         Ok(())
-        //
-        // self.sprite_service.borrow_mut().draw_sprite(
-        //     "smiley",
-        //     self.data.player.x as i32,
-        //     self.data.player.y as i32,
-        // )
     }
 
     fn is_in_screen(point_x: i32, point_y: i32) -> bool {
-        point_x > 0 && point_x < 600 && point_y > 0 && point_y < 600
+        let window_width = 800;
+        let window_height = 600;
+        let margin = 100;
+        // fixme utilise un service window (pas encore dev) afin de recupere ces info
+        point_x > 0 - margin && point_x < window_width && point_y > 0 - margin && point_y < window_height
     }
 }

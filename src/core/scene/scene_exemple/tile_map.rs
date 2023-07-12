@@ -1,6 +1,7 @@
+use crate::core::sdd::vecteur2d::Vecteur2D;
+
 pub struct Tile {
-    pub x: f32,
-    pub y: f32
+    pub pos: Vecteur2D<f32>
 }
 
 pub struct TileMap {
@@ -16,8 +17,10 @@ impl TileMap {
                     .into_iter()
                     .map(|current_column| {
                         Tile {
-                            x: current_column as f32,
-                            y: current_line as f32
+                            pos: Vecteur2D::new(
+                                current_column as f32,
+                                current_line as f32
+                            )
                         }
                     })
                     .collect::<Vec<Tile>>()

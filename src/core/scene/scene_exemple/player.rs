@@ -1,4 +1,5 @@
+use crate::core::sdd::vecteur2d::Vecteur2D;
+
 pub struct Player {
-    pub x: f32,
-    pub y: f32
+    pub pos: Vecteur2D<f32>
 }
