@@ -13,15 +13,9 @@ impl SceneExempleData {
     pub fn new() -> Self {
         Self {
             is_init: false,
-            player: Player {
-                pos: Vecteur2D::new(
-                    300f32,
-                    300f32
-                )
-
-            },
+            player: Player::new(),
             camera: Vecteur2D::new(300f32, 300f32),
-            tilemap: TileMap::new(200, 200)
+            tilemap: TileMap::new(30, 30, 32)
         }
     }
 }

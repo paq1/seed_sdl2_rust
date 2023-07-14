@@ -11,6 +11,7 @@ use crate::core::input::CanManageInput;
 use crate::core::musics::CanPlayMusic;
 use crate::core::scene::{SceneEnum};
 use crate::core::scene::scene_exemple::scene_exemple_data::SceneExempleData;
+use crate::core::scene::scene_exemple::tile_map::TileType;
 use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub struct SceneExemple<SpriteService, TextService, InputService, MusicService>
@@ -93,8 +94,9 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     }
 
     fn update_player(&mut self, dt: f32) -> Result<(), String> {
-        let vitesse = 100f32;
+        let vitesse = self.data.player.vitesse;
         let vitesse_temps = vitesse * dt;
+        let old_pos = self.data.player.pos.clone();
 
         if self.key_manager.borrow().is_key_pressed("Z") {
             self.data.player.pos.y -= vitesse_temps;
@@ -108,6 +110,14 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         if self.key_manager.borrow().is_key_pressed("Q") {
             self.data.player.pos.x -= vitesse_temps;
         }
+
+        let tile = self.data.tilemap.get_tile_from_position(&self.data.player.pos);
+        match tile {
+            Some(x) if x.r#type == TileType::Mur => self.data.player.pos = old_pos,
+            None => self.data.player.pos = old_pos,
+            _ => ()
+        };
+
         Ok(())
     }
 
@@ -149,8 +159,15 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
                         )
                     })
                     .for_each(|current| {
+
+                        let sprite_index = if current.r#type == TileType::Herbe {
+                            "tile_herbe"
+                        } else {
+                            "tile_brique"
+                        };
+
                         self.sprite_service.borrow_mut().draw_sprite(
-                            "tile_herbe",
+                            sprite_index,
                             current.pos.x as i32 * 32 - self.data.camera.x as i32,
                             current.pos.y as i32 * 32 - self.data.camera.y as i32,
                         ).expect("erreur de lors de la 'affiche de la tuile");
