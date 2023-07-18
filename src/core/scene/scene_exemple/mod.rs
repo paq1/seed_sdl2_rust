@@ -178,8 +178,8 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     fn draw_player(&mut self) -> Result<(), String> {
         self.sprite_service.borrow_mut().draw_sprite(
             "smiley",
-            self.data.player.pos.x as i32 - self.data.camera.x as i32 - 16,
-            self.data.player.pos.y as i32 - self.data.camera.y as i32 - 16,
+            (self.data.player.pos.x - self.data.camera.x - 16f32) as i32,
+            (self.data.player.pos.y - self.data.camera.y - 16f32) as i32,
         )
     }
 
