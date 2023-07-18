@@ -18,6 +18,7 @@ use crate::core::graphics::CanDrawText;
 use crate::core::graphics::models::color::Color;
 use crate::core::input::CanManageInput;
 use crate::core::scene::SceneManager;
+use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub mod utils;
 pub mod core;
@@ -119,6 +120,11 @@ pub fn main() -> Result<(), String> {
                             input_service.borrow_mut().key_up(key.to_string());
                         }
                     }
+                }
+                Event::MouseMotion { x, y, .. } => {
+                    input_service.borrow_mut().update_mouse_position(
+                        Vecteur2D::new(x as f32, y as f32)
+                    )
                 }
                 _ => {}
             }

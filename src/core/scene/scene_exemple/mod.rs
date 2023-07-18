@@ -21,7 +21,7 @@ pub struct SceneExemple<SpriteService, TextService, InputService, MusicService>
         InputService: CanManageInput,
         MusicService: CanPlayMusic
 {
-    pub key_manager: Rc<RefCell<InputService>>,
+    pub input_service: Rc<RefCell<InputService>>,
     pub text_service: Rc<RefCell<TextService>>,
     pub sprite_service: Rc<RefCell<SpriteService>>,
     pub music_service: Rc<RefCell<MusicService>>,
@@ -55,7 +55,17 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
             10i32,
             0i32,
             14u32,
-            Color::rgb(0u8, 200u8, 100u8)
+            Color::rgb(255u8, 255u8, 255u8)
+        ).expect("erreur lors de l'affichage");
+
+        let pos = self.input_service.borrow_mut().get_mouse_position();
+
+        self.text_service.borrow_mut().create_text(
+            format!("mouse = ({}, {})", pos.x + self.data.camera.x, pos.y + self.data.camera.y).as_str(),
+            10i32,
+            18i32,
+            14u32,
+            Color::rgb(255u8, 255u8, 255u8)
         ).expect("erreur lors de l'affichage");
 
         None
@@ -63,7 +73,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
     fn get_keys_pressed(&self) -> String {
         self
-            .key_manager
+            .input_service
             .borrow()
             .key_pressed()
             .join("-")
@@ -76,7 +86,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         music_service: Rc<RefCell<MusicService>>,
     ) -> Self {
         Self {
-            key_manager,
+            input_service: key_manager,
             text_service,
             sprite_service,
             music_service,
@@ -97,7 +107,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         let vitesse = self.data.player.vitesse;
         let vitesse_temps = vitesse * dt;
 
-        if self.key_manager.borrow().is_key_pressed("Z") {
+        if self.input_service.borrow().is_key_pressed("Z") {
 
             let mut pos = self.data.player.pos.clone();
             pos.y -= vitesse_temps;
@@ -107,7 +117,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
                 self.data.player.pos.y -= vitesse_temps;
             }
         }
-        if self.key_manager.borrow().is_key_pressed("D") {
+        if self.input_service.borrow().is_key_pressed("D") {
             let mut pos = self.data.player.pos.clone();
             pos.x += vitesse_temps;
             let tile = self.data.tilemap.get_tile_from_position(&pos);
@@ -116,7 +126,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
                 self.data.player.pos.x += vitesse_temps;
             }
         }
-        if self.key_manager.borrow().is_key_pressed("S") {
+        if self.input_service.borrow().is_key_pressed("S") {
             let mut pos = self.data.player.pos.clone();
             pos.y += vitesse_temps;
             let tile = self.data.tilemap.get_tile_from_position(&pos);
@@ -125,7 +135,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
                 self.data.player.pos.y += vitesse_temps;
             }
         }
-        if self.key_manager.borrow().is_key_pressed("Q") {
+        if self.input_service.borrow().is_key_pressed("Q") {
 
             let mut pos = self.data.player.pos.clone();
             pos.x -= vitesse_temps;
@@ -211,7 +221,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     }
 
     fn test_play_sound(&self) {
-        if self.key_manager.borrow().is_key_pressed("X") {
+        if self.input_service.borrow().is_key_pressed("X") {
             self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
         }
     }

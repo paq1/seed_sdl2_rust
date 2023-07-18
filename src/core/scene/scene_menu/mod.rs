@@ -18,7 +18,7 @@ pub struct SceneMenu<SpriteService, TextService, InputService, MusicService>
         InputService: CanManageInput,
         MusicService: CanPlayMusic
 {
-    pub key_manager: Rc<RefCell<InputService>>,
+    pub input_service: Rc<RefCell<InputService>>,
     pub text_service: Rc<RefCell<TextService>>,
     pub sprite_service: Rc<RefCell<SpriteService>>,
     pub music_service: Rc<RefCell<MusicService>>,
@@ -55,7 +55,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
         music_service: Rc<RefCell<MusicService>>,
     ) -> Self {
         Self {
-            key_manager,
+            input_service: key_manager,
             text_service,
             sprite_service,
             music_service,
@@ -75,10 +75,10 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
     }
 
     fn change_scene(&mut self) -> Option<SceneEnum<SpriteService, TextService, InputService, MusicService>> {
-        if self.key_manager.borrow().is_key_pressed("Space") {
+        if self.input_service.borrow().is_key_pressed("Space") {
             self.music_service.borrow().stop().expect("erreur lors de l'arret de la musique");
             let scene_exemple = SceneExemple::new(
-                Rc::clone(&self.key_manager),
+                Rc::clone(&self.input_service),
                 Rc::clone(&self.text_service),
                 Rc::clone(&self.sprite_service),
                 Rc::clone(&self.music_service)
@@ -112,7 +112,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
     }
 
     fn test_play_sound(&self) {
-        if self.key_manager.borrow().is_key_pressed("X") {
+        if self.input_service.borrow().is_key_pressed("X") {
             self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
         }
     }

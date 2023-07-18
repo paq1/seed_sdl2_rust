@@ -1,14 +1,17 @@
 use std::collections::HashMap;
 use crate::core::input::CanManageInput;
+use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub struct InputServiceImpl {
-    pub key_manager: HashMap<String, bool>
+    pub key_manager: HashMap<String, bool>,
+    pub mouse_position: Vecteur2D<f32>
 }
 
 impl InputServiceImpl {
     pub fn new() -> Self {
         Self {
-            key_manager: HashMap::new()
+            key_manager: HashMap::new(),
+            mouse_position: Vecteur2D::new(0f32, 0f32)
         }
     }
 }
@@ -44,5 +47,13 @@ impl CanManageInput for InputServiceImpl {
             .filter(|key| self.is_key_pressed(key))
             .map(|k| k.clone())
             .collect::<Vec<_>>()
+    }
+
+    fn update_mouse_position(&mut self, position: Vecteur2D<f32>) {
+        self.mouse_position = position
+    }
+
+    fn get_mouse_position(&self) -> Vecteur2D<f32> {
+        self.mouse_position.clone()
     }
 }
