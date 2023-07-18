@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::mouse::MouseButton;
 
 use crate::app::factories::font_factory::FontFactory;
 use crate::app::factories::music_factory::MusicFactory;
@@ -20,7 +21,6 @@ use crate::core::input::CanManageInput;
 use crate::core::scene::SceneManager;
 use crate::core::sdd::vecteur2d::Vecteur2D;
 
-pub mod utils;
 pub mod core;
 pub mod app;
 
@@ -125,6 +125,20 @@ pub fn main() -> Result<(), String> {
                     input_service.borrow_mut().update_mouse_position(
                         Vecteur2D::new(x as f32, y as f32)
                     )
+                }
+                Event::MouseButtonDown {mouse_btn, ..} => {
+                    match mouse_btn {
+                        MouseButton::Left => input_service.borrow_mut().key_mouse_down("left".to_string()),
+                        MouseButton::Right => input_service.borrow_mut().key_mouse_down("right".to_string()),
+                        _ => {}
+                    }
+                }
+                Event::MouseButtonUp {mouse_btn, ..} => {
+                    match mouse_btn {
+                        MouseButton::Left => input_service.borrow_mut().key_mouse_up("left".to_string()),
+                        MouseButton::Right => input_service.borrow_mut().key_mouse_up("right".to_string()),
+                        _ => {}
+                    }
                 }
                 _ => {}
             }

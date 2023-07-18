@@ -50,23 +50,29 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         self.draw_player().expect("erreur lors de l'affichage du player");
 
         let keys_pressed = self.get_keys_pressed();
-        self.text_service.borrow_mut().create_text(
-            format!("keys = {}", keys_pressed).as_str(),
-            10i32,
-            0i32,
-            14u32,
-            Color::rgb(255u8, 255u8, 255u8)
-        ).expect("erreur lors de l'affichage");
+        let mouse_key_pressed = self.get_mouse_keys_pressed();
 
+        let font_size = 14u32;
         let pos = self.input_service.borrow_mut().get_mouse_position();
 
-        self.text_service.borrow_mut().create_text(
-            format!("mouse = ({}, {})", pos.x + self.data.camera.x, pos.y + self.data.camera.y).as_str(),
-            10i32,
-            18i32,
-            14u32,
-            Color::rgb(255u8, 255u8, 255u8)
-        ).expect("erreur lors de l'affichage");
+
+        vec![
+            "-------- debug --------".to_string(),
+            format!("keys = {}", keys_pressed),
+            format!("mouse = ({}, {})", pos.x + self.data.camera.x, pos.y + self.data.camera.y),
+            format!("mouse keys = {}", mouse_key_pressed)
+        ]
+            .iter()
+            .enumerate()
+            .for_each(|(index, debug_str)| {
+                self.text_service.borrow_mut().create_text(
+                    debug_str.as_str(),
+                    10i32,
+                    font_size as i32 * index as i32,
+                    font_size,
+                    Color::rgb(255u8, 255u8, 255u8)
+                ).expect("erreur lors de l'affichage");
+            });
 
         None
     }
@@ -76,6 +82,14 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
             .input_service
             .borrow()
             .key_pressed()
+            .join("-")
+    }
+
+    fn get_mouse_keys_pressed(&self) -> String {
+        self
+            .input_service
+            .borrow()
+            .mouse_key_pressed()
             .join("-")
     }
 
