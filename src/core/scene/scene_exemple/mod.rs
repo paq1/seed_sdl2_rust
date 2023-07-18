@@ -11,7 +11,7 @@ use crate::core::input::CanManageInput;
 use crate::core::musics::CanPlayMusic;
 use crate::core::scene::{SceneEnum};
 use crate::core::scene::scene_exemple::scene_exemple_data::SceneExempleData;
-use crate::core::scene::scene_exemple::tile_map::TileType;
+use crate::core::scene::scene_exemple::tile_map::{Tile, TileType};
 use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub struct SceneExemple<SpriteService, TextService, InputService, MusicService>
@@ -96,29 +96,54 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     fn update_player(&mut self, dt: f32) -> Result<(), String> {
         let vitesse = self.data.player.vitesse;
         let vitesse_temps = vitesse * dt;
-        let old_pos = self.data.player.pos.clone();
 
         if self.key_manager.borrow().is_key_pressed("Z") {
-            self.data.player.pos.y -= vitesse_temps;
+
+            let mut pos = self.data.player.pos.clone();
+            pos.y -= vitesse_temps;
+            let tile = self.data.tilemap.get_tile_from_position(&pos);
+
+            if self.is_tile_valid(tile) {
+                self.data.player.pos.y -= vitesse_temps;
+            }
         }
         if self.key_manager.borrow().is_key_pressed("D") {
-            self.data.player.pos.x += vitesse_temps;
+            let mut pos = self.data.player.pos.clone();
+            pos.x += vitesse_temps;
+            let tile = self.data.tilemap.get_tile_from_position(&pos);
+
+            if self.is_tile_valid(tile) {
+                self.data.player.pos.x += vitesse_temps;
+            }
         }
         if self.key_manager.borrow().is_key_pressed("S") {
-            self.data.player.pos.y += vitesse_temps;
+            let mut pos = self.data.player.pos.clone();
+            pos.y += vitesse_temps;
+            let tile = self.data.tilemap.get_tile_from_position(&pos);
+
+            if self.is_tile_valid(tile) {
+                self.data.player.pos.y += vitesse_temps;
+            }
         }
         if self.key_manager.borrow().is_key_pressed("Q") {
-            self.data.player.pos.x -= vitesse_temps;
+
+            let mut pos = self.data.player.pos.clone();
+            pos.x -= vitesse_temps;
+            let tile = self.data.tilemap.get_tile_from_position(&pos);
+
+            if self.is_tile_valid(tile) {
+                self.data.player.pos.x -= vitesse_temps;
+            }
         }
 
-        let tile = self.data.tilemap.get_tile_from_position(&self.data.player.pos);
-        match tile {
-            Some(x) if x.r#type == TileType::Mur => self.data.player.pos = old_pos,
-            None => self.data.player.pos = old_pos,
-            _ => ()
-        };
-
         Ok(())
+    }
+
+    fn is_tile_valid(&self, tile: Option<Tile>) -> bool {
+        match tile {
+            Some(x) if x.r#type != TileType::Mur => true,
+            _ => false
+        }
     }
 
     fn update_camera(&mut self) {

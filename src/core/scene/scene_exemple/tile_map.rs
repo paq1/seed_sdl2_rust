@@ -48,8 +48,6 @@ impl TileMap {
         let index_x = (position.x / self.tile_size as f32).floor() as i32;
         let index_y = (position.y / self.tile_size as f32).floor() as i32;
 
-        println!("({}, {})", index_x, index_y);
-
         match (index_x, index_y) {
             (x, y) if self.indexes_valid(x, y) => {
                 // fixme clean le code
