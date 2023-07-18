@@ -1,17 +1,17 @@
 pub mod scene_exemple_data;
 pub mod player;
-pub mod tile_map;
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::core::elements::tilemap::tile::TileType;
 use crate::core::graphics::models::color::Color;
 
 use crate::core::graphics::{CanDrawSprite, CanDrawText};
 use crate::core::input::CanManageInput;
 use crate::core::musics::CanPlayMusic;
+use crate::core::physics::collide_body::CanCollideWithTileMap;
 use crate::core::scene::{SceneEnum};
 use crate::core::scene::scene_exemple::scene_exemple_data::SceneExempleData;
-use crate::core::scene::scene_exemple::tile_map::{Tile, TileType};
 use crate::core::sdd::vecteur2d::Vecteur2D;
 
 pub struct SceneExemple<SpriteService, TextService, InputService, MusicService>
@@ -109,51 +109,46 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
         if self.input_service.borrow().is_key_pressed("Z") {
 
-            let mut pos = self.data.player.pos.clone();
-            pos.y -= vitesse_temps;
-            let tile = self.data.tilemap.get_tile_from_position(&pos);
+            let mut col_body = self.data.player.collide_body.clone();
+            col_body.position.y -= vitesse_temps;
 
-            if self.is_tile_valid(tile) {
+            if !col_body.is_collide(&self.data.tilemap, vec![TileType::Mur]) {
                 self.data.player.pos.y -= vitesse_temps;
+                self.data.player.collide_body.position.y -= vitesse_temps;
             }
         }
         if self.input_service.borrow().is_key_pressed("D") {
-            let mut pos = self.data.player.pos.clone();
-            pos.x += vitesse_temps;
-            let tile = self.data.tilemap.get_tile_from_position(&pos);
 
-            if self.is_tile_valid(tile) {
+            let mut col_body = self.data.player.collide_body.clone();
+            col_body.position.x += vitesse_temps;
+
+            if !col_body.is_collide(&self.data.tilemap, vec![TileType::Mur]) {
                 self.data.player.pos.x += vitesse_temps;
+                self.data.player.collide_body.position.x += vitesse_temps;
             }
         }
         if self.input_service.borrow().is_key_pressed("S") {
-            let mut pos = self.data.player.pos.clone();
-            pos.y += vitesse_temps;
-            let tile = self.data.tilemap.get_tile_from_position(&pos);
 
-            if self.is_tile_valid(tile) {
+            let mut col_body = self.data.player.collide_body.clone();
+            col_body.position.y += vitesse_temps;
+
+            if !col_body.is_collide(&self.data.tilemap, vec![TileType::Mur]) {
                 self.data.player.pos.y += vitesse_temps;
+                self.data.player.collide_body.position.y += vitesse_temps;
             }
         }
         if self.input_service.borrow().is_key_pressed("Q") {
 
-            let mut pos = self.data.player.pos.clone();
-            pos.x -= vitesse_temps;
-            let tile = self.data.tilemap.get_tile_from_position(&pos);
+            let mut col_body = self.data.player.collide_body.clone();
+            col_body.position.x -= vitesse_temps;
 
-            if self.is_tile_valid(tile) {
+            if !col_body.is_collide(&self.data.tilemap, vec![TileType::Mur]) {
                 self.data.player.pos.x -= vitesse_temps;
+                self.data.player.collide_body.position.x -= vitesse_temps;
             }
         }
 
         Ok(())
-    }
-
-    fn is_tile_valid(&self, tile: Option<Tile>) -> bool {
-        match tile {
-            Some(x) if x.r#type != TileType::Mur => true,
-            _ => false
-        }
     }
 
     fn update_camera(&mut self) {

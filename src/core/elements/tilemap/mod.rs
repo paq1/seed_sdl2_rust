@@ -1,16 +1,7 @@
+use crate::core::elements::tilemap::tile::{Tile, TileType};
 use crate::core::sdd::vecteur2d::Vecteur2D;
 
-#[derive(PartialEq, Clone)]
-pub enum TileType {
-    Herbe,
-    Mur
-}
-
-#[derive(Clone)]
-pub struct Tile {
-    pub pos: Vecteur2D<f32>,
-    pub r#type: TileType
-}
+pub mod tile;
 
 pub struct TileMap {
     pub tiles: Vec<Vec<Tile>>,
