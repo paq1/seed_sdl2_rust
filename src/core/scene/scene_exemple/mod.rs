@@ -59,7 +59,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         vec![
             "-------- debug --------".to_string(),
             format!("keys = {}", keys_pressed),
-            format!("mouse = ({}, {})", pos.x + self.data.camera.x, pos.y + self.data.camera.y),
+            format!("mouse = ({}, {})", (pos.x + self.data.camera.x) as i32, (pos.y + self.data.camera.y) as i32),
             format!("mouse keys = {}", mouse_key_pressed)
         ]
             .iter()
