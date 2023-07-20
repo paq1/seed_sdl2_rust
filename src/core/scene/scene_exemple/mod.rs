@@ -43,11 +43,13 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         self.init_scene().expect("erreur lors de l'initialisation de la scene");
 
         self.update_player(dt).expect("erreur lors de l'update du player");
+        self.update_curseur();
         self.update_camera();
         self.test_play_sound();
 
         self.draw_tilemap().expect("erreur lors de l'affichage de la map");
         self.draw_player().expect("erreur lors de l'affichage du player");
+        self.draw_cursor().expect("erreur lors de l'affichage du curseur");
 
         let keys_pressed = self.get_keys_pressed();
         let mouse_key_pressed = self.get_mouse_keys_pressed();
@@ -165,6 +167,27 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         Ok(())
     }
 
+    fn update_curseur(&mut self) {
+        // on recup la pos du joueur et de la souris
+        let pos_joueur = self.data.player.pos.clone();
+        let pos_souris = self.input_service.borrow().get_mouse_position() + self.data.camera.clone();
+
+        // on recupere le vecteur entre ces 2 points et on prend sa valeur unitaire
+        let vec_joueur_curseur = Vecteur2D::<f32>::from_points(&pos_joueur, &pos_souris);
+        let vec_joueur_curseur_unitaire = vec_joueur_curseur.unitaire();
+
+        // on met a jour la position du curseur uniquement si le calcul unitaire est possible
+        match vec_joueur_curseur_unitaire {
+            Some(unitaire) => {
+                self.data.pos_curseur = pos_joueur.clone() + Vecteur2D::new(
+                    unitaire.x * 32.0,
+                    unitaire.y * 32.0
+                )
+            }
+            _ => ()
+        }
+    }
+
     fn update_camera(&mut self) {
         let window_width = 800f32; // fixme utiliser un service window afin de recup les infos de la window
         let window_height = 600f32; // fixme utiliser un service window afin de recup les infos de la window
@@ -178,8 +201,22 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     fn draw_player(&mut self) -> Result<(), String> {
         self.sprite_service.borrow_mut().draw_sprite(
             "smiley",
-            (self.data.player.pos.x - self.data.camera.x - 16f32) as i32,
-            (self.data.player.pos.y - self.data.camera.y - 16f32) as i32,
+            Vecteur2D::new(
+                (self.data.player.pos.x - self.data.camera.x - 16f32) as i32,
+                (self.data.player.pos.y - self.data.camera.y - 16f32) as i32
+            )
+            ,None, None
+        )
+    }
+
+    fn draw_cursor(&mut self) -> Result<(), String> {
+        self.sprite_service.borrow_mut().draw_sprite(
+            "viseur",
+            Vecteur2D::new(
+                (self.data.pos_curseur.x - self.data.camera.x - 16f32) as i32,
+                (self.data.pos_curseur.y - self.data.camera.y - 16f32) as i32
+            )
+            , Some(Vecteur2D::new(512, 512)), None
         )
     }
 
@@ -212,8 +249,11 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
                         self.sprite_service.borrow_mut().draw_sprite(
                             sprite_index,
-                            current.pos.x as i32 * 32 - self.data.camera.x as i32,
-                            current.pos.y as i32 * 32 - self.data.camera.y as i32,
+                            Vecteur2D::new(
+                                current.pos.x as i32 * 32 - self.data.camera.x as i32,
+                                current.pos.y as i32 * 32 - self.data.camera.y as i32
+                            )
+                            , None, None
                         ).expect("erreur de lors de la 'affiche de la tuile");
                     });
             });
