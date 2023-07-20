@@ -176,12 +176,25 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
         let vec_joueur_curseur = Vecteur2D::<f32>::from_points(&pos_joueur, &pos_souris);
         let vec_joueur_curseur_unitaire = vec_joueur_curseur.unitaire();
 
+        let distance_souris_joureur = vec_joueur_curseur.norme();
+
         // on met a jour la position du curseur uniquement si le calcul unitaire est possible
         match vec_joueur_curseur_unitaire {
             Some(unitaire) => {
+                let distance_min = 32.0;
+                let distance_max = distance_min * 2.0;
+
+                let distance_viseur = if distance_souris_joureur > distance_max {
+                    distance_max
+                } else if distance_souris_joureur < distance_min {
+                    distance_min
+                } else {
+                    distance_souris_joureur
+                };
+
                 self.data.pos_curseur = pos_joueur.clone() + Vecteur2D::new(
-                    unitaire.x * 32.0,
-                    unitaire.y * 32.0
+                    unitaire.x * distance_viseur,
+                    unitaire.y * distance_viseur
                 )
             }
             _ => ()
