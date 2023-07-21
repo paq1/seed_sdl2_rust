@@ -68,7 +68,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
     fn init_scene(&mut self) -> Result<(), String> {
         if !self.data.is_init {
             self.data.is_init = true;
-            self.music_service.borrow().play("digital-love")
+            self.music_service.borrow().play("digital-love", 1)
         } else {
             Ok(())
         }

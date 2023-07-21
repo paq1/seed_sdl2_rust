@@ -8,7 +8,9 @@ pub struct MusicServiceImpl<'mf> {
 }
 
 impl<'mf> CanPlayMusic for MusicServiceImpl<'mf> {
-    fn play(&self, id: &str) -> Result<(), String> {
+    fn play(&self, id: &str, volume: i32) -> Result<(), String> {
+        sdl2::mixer::Music::set_volume(volume);
+
         self.music_factory.borrow().musics.get(id).map(|music| music.play(-1))
             .map(|_| Ok(()))
             .unwrap_or(Err(format!("musique : '{}' inconnue", id).to_string()))
