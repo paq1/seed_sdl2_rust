@@ -40,7 +40,6 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
         self.init_scene().expect("erreur lors de l'initialisation du menu");
 
         let next_scene = self.change_scene();
-        self.test_play_sound();
 
         self.draw_text_title();
         self.draw_text_for_change_scene();
@@ -109,11 +108,5 @@ impl<SpriteService, TextService, InputService, MusicService> SceneMenu<SpriteSer
                 32u32,
                 Color::rgb(255u8, 0u8, 0u8)
             ).expect("erreur lors de l'affichage");
-    }
-
-    fn test_play_sound(&self) {
-        if self.input_service.borrow().is_key_pressed("X") {
-            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
-        }
     }
 }

@@ -16,8 +16,9 @@ impl<'mf> CanPlayMusic for MusicServiceImpl<'mf> {
             .unwrap_or(Err(format!("musique : '{}' inconnue", id).to_string()))
     }
 
-    fn play_sound(&self, id: &str) -> Result<(), String> {
+    fn play_sound(&self, id: &str, volume: i32) -> Result<(), String> {
         self.music_factory.borrow().sounds.get(id).map(|sound| {
+            sdl2::mixer::Channel(1).set_volume(volume);
             sdl2::mixer::Channel(1).play(sound, 0).map(|_| ())
         })
             .unwrap_or(Err(format!("erreur lors de la lecture du son : {}", id)))

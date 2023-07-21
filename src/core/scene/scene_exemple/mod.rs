@@ -284,7 +284,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
 
     fn test_play_sound(&self) {
         if self.input_service.borrow().is_key_pressed("X") {
-            self.music_service.borrow().play_sound("arme").expect("erreur lors de la lecture du son arme");
+            self.music_service.borrow().play_sound("arme", 1).expect("erreur lors de la lecture du son arme");
         }
     }
 }
