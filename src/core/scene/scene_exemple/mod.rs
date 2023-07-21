@@ -113,7 +113,7 @@ impl<SpriteService, TextService, InputService, MusicService> SceneExemple<Sprite
     fn init_scene(&mut self) -> Result<(), String> {
         if !self.data.is_init {
             self.data.is_init = true;
-            self.music_service.borrow().play("digital-love", 1)
+            self.music_service.borrow().play("hold-the-line", 10)
         } else {
             Ok(())
         }

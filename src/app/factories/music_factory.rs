@@ -30,8 +30,12 @@ impl<'m> MusicFactory<'m> {
         let music_menu_path: &Path = Path::new("assets/musics/digital-love.wav");
         let music_menu = Music::from_file(music_menu_path)?;
 
+        let music_jeu_path: &Path = Path::new("assets/musics/hold-the-line.mp3");
+        let music_jeu = Music::from_file(music_jeu_path)?;
+
         let musics = [
-            ("digital-love", music_menu)
+            ("digital-love", music_menu),
+            ("hold-the-line", music_jeu),
         ]
             .into_iter()
             .collect::<HashMap<&str, Music>>();
